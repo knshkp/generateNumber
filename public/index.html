@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Random Number Generator</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+</head>
+<body>
+  <h1 id="randomNumber">Loading...</h1>
+  <h2 id="countdown">Countdown: 10 seconds</h2>
+
+  <script>
+    const socket = io();
+
+    socket.on('newNumber', (data) => {
+      document.getElementById('randomNumber').innerText = `Random Number: ${data.number}`;
+      startCountdown(data.time);
+    });
+
+    socket.on('updateData', (data) => {
+      document.getElementById('randomNumber').innerText = `Current Number: ${data.number} (Target: ${data.target})`;
+      startCountdown(data.time);
+    });
+
+    function startCountdown(initialTime) {
+      let timeLeft = initialTime; // Convert milliseconds to seconds
+
+      const countdownInterval = setInterval(() => {
+        document.getElementById('countdown').innerText = `Countdown: ${timeLeft} seconds`;
+
+        if (timeLeft <= 0) {
+          clearInterval(countdownInterval);
+          document.getElementById('countdown').innerText = 'Countdown: 0 seconds';
+        } else {
+          timeLeft--;
+        }
+      }, 1000);
+    }
+  </script>
+</body>
+</html>
