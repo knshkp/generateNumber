@@ -26,4 +26,4 @@ server.listen(PORT, () => {
 });
 
 // Initial call to generateAndBroadcastNumber (commented out)
-// generateAndBroadcastNumber();
+generateAndBroadcastNumber();
