@@ -1,4 +1,5 @@
 const User = require("../models/userModel");
+const isEmpty = require('lodash/isEmpty');
 const userLogin = async (req, res) => {
     try {
       const phone = req.body.phone;
@@ -19,29 +20,35 @@ const userLogin = async (req, res) => {
           data: userResult,
         };
         res.status(200).send(response);
-      } else {
+      } 
+      else {
         // User does not exist, signup the user
-        const newUser = new User({
-          phone: phone,
-          email:req.body.email,
-          name:req.body.name
-          // Add any other required fields for signup
-        });
-  
-        const savedUser = await newUser.save();
-        const userResult = {
-          _id: savedUser._id,
-          name: savedUser.name,
-          phone: savedUser.phone,
-          email:savedUser.email
-        };
-  
-        const response = {
-          success: true,
-          msg: "User created successfully",
-          data: userResult,
-        };
-        res.status(200).send(response);
+        if(isEmpty(req.body.email)||isEmpty(req.body.name)){
+          return res.status(400).send({ success: false, msg: "user not found" });
+        }
+        else{
+          const newUser = new User({
+            phone: phone,
+            email:req.body.email,
+            name:req.body.name
+            // Add any other required fields for signup
+          });
+    
+          const savedUser = await newUser.save();
+          const userResult = {
+            _id: savedUser._id,
+            name: savedUser.name,
+            phone: savedUser.phone,
+            email:savedUser.email
+          };
+    
+          const response = {
+            success: true,
+            msg: "User created successfully",
+            data: userResult,
+          };
+          res.status(200).send(response);
+        }
       }
     } catch (error) {
       res.status(400).send(error.message);
