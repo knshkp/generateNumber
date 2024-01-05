@@ -1,5 +1,4 @@
 const User = require("../models/userModel");
-const isEmpty = require('lodash/isEmpty');
 const userLogin = async (req, res) => {
     try {
       const phone = req.body.phone;
@@ -11,7 +10,8 @@ const userLogin = async (req, res) => {
           _id: userData._id,
           name: userData.name,
           phone: userData.phone,
-          email:userData.email
+          email:userData.email,
+          wallet:userData.wallet
         };
   
         const response = {
@@ -23,7 +23,7 @@ const userLogin = async (req, res) => {
       } 
       else {
         // User does not exist, signup the user
-        if(isEmpty(req.body.email)||isEmpty(req.body.name)){
+        if(!req.body.email&&!req.body.name){
           return res.status(400).send({ success: false, msg: "user not found" });
         }
         else{

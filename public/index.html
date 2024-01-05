@@ -1,41 +1,39 @@
+<!-- test-client.html -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Random Number Generator</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+  <title>Socket.io Test Client</title>
+  <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
 </head>
 <body>
-  <h1 id="randomNumber">Loading...</h1>
-  <h2 id="countdown">Countdown: 10 seconds</h2>
+  <h1>Socket.io Test Client</h1>
+  <button onclick="sendMoney()">Send Money</button>
+  <div id="walletBalance"></div>
 
   <script>
-    const socket = io();
+    const socket = io('http://localhost:3000');
 
-    socket.on('newNumber', (data) => {
-      document.getElementById('randomNumber').innerText = `Random Number: ${data.number}`;
-      startCountdown(data.time);
+    // Assuming you have a user ID; replace 'userId' with the actual user ID
+    const userId = 'userId';
+
+    // Emit an event to request wallet updates
+    socket.emit('updateWallet', userId);
+
+    // Listen for wallet updates
+    socket.on('walletUpdated', (data) => {
+      console.log('Wallet updated:', data.newBalance);
+      // Update your UI with the new wallet balance
+      document.getElementById('walletBalance').innerText = `Wallet Balance: $${data.newBalance}`;
     });
 
-    socket.on('updateData', (data) => {
-      document.getElementById('randomNumber').innerText = `Current Number: ${data.number} (Target: ${data.target})`;
-      startCountdown(data.time);
-    });
-
-    function startCountdown(initialTime) {
-      let timeLeft = initialTime; // Convert milliseconds to seconds
-
-      const countdownInterval = setInterval(() => {
-        document.getElementById('countdown').innerText = `Countdown: ${timeLeft} seconds`;
-
-        if (timeLeft <= 0) {
-          clearInterval(countdownInterval);
-          document.getElementById('countdown').innerText = 'Countdown: 0 seconds';
-        } else {
-          timeLeft--;
-        }
-      }, 1000);
+    // Function to simulate sending money
+    function sendMoney() {
+      const phone = 96946; // Replace with the sender's phone number
+      const amount = 10; // Replace with the amount to send
+      socket.emit('sendMoney', { phone, amount });
     }
   </script>
 </body>

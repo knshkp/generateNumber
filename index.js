@@ -8,9 +8,10 @@ require('dotenv').config();
 const app = express();
 const expressServer = http.createServer(app);
 const io = socketIO(expressServer);
+const walletRoute=require('./routes/walletRoutes')
 
-// Import the generateAndBroadcastNumber function
-const { generateAndBroadcastNumber } = require('./controllers/generateController');
+// Import the generateAndBroadcastNumber and sendMoney functions
+const { generateAndBroadcastNumber, sendMoney } = require('./controllers/generateController');
 
 // Serve HTML file for testing
 app.get('/', (req, res) => {
@@ -46,7 +47,7 @@ app.use('/api', generateRoutes(io));
 
 const userRoutes = require('./routes/userRoute');
 app.use('/user', userRoutes);
-
+app.use('/wallet',walletRoute)
 // Start the Express server on port 3000
 const EXPRESS_PORT = 3000;
 expressServer.listen(EXPRESS_PORT, () => {
@@ -60,3 +61,16 @@ console.log(`Socket.IO is running on port ${SOCKET_IO_PORT}`);
 
 // Initial call to generateAndBroadcastNumber (commented out)
 // generateAndBroadcastNumber();
+
+// Example: Send Money functionality
+app.post('/api/sendMoney', express.json(), async (req, res) => {
+  const { senderId, receiverId, amount } = req.body;
+
+  try {
+    await sendMoney(io, senderId, receiverId, amount);
+    res.status(200).json({ message: 'Money sent successfully' });
+  } catch (error) {
+    console.error('Error sending money:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
