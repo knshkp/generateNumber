@@ -50,7 +50,7 @@ const sendMoney = async (io, phone, time,amount) => {
     sender.wallet -= amount;
     await sender.save();
 
-    io.emit('walletUpdated', { userId: sender.id, newBalance: sender.wallet,time:time });
+    io.emit('walletUpdated', { phone: phone, newBalance: sender.wallet,time:time });
 
     // Removed 'res' from here, as it's not available in this context
     return { success: true, message: 'Money sent successfully' };
@@ -74,7 +74,7 @@ const receiveMoney = async (io,phone,time,amount) => {
     sender.wallet += amount * (time-30);
     await sender.save();
 
-    io.emit('walletUpdated', { userId: sender.id, newBalance: sender.wallet,time:time });
+    io.emit('walletUpdated', { phone: phone, newBalance: sender.wallet,time:time });
 
     return {success:true,message:"Money Receive Successfully"}
   } catch (error) {
