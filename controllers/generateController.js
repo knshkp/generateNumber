@@ -84,7 +84,7 @@ const receiveMoney = async (io,phone,time,amount) => {
     }
 
     // Assuming time is a valid numeric value
-    sender.wallet += amount * (time-30);
+    sender.wallet += amount * time;
     await sender.save();
 
     io.emit('walletUpdated', { phone: phone, newBalance: sender.wallet,time:time });
