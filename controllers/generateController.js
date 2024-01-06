@@ -40,7 +40,7 @@ const generateAndBroadcastNumber = (io) => {
         clearInterval(intervalId);
         generateAndBroadcast();
       }
-    }, 100);
+    }, 500);
   };
 
   // Call generateAndBroadcast to start the initial round
