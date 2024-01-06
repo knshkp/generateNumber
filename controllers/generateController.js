@@ -2,6 +2,7 @@
 const User = require('../models/userModel');
 const Transaction=require('../models/transictionsModel')
 const generateAndBroadcastNumber = (io) => {
+  let lastNumbers=[0,0,0,0,0,0]
   let targetNumber = 0;
   let currentNumber = 0;
   let timeRemaining = 10; // Initial countdown time in seconds
@@ -10,12 +11,16 @@ const generateAndBroadcastNumber = (io) => {
 
   const generateAndBroadcast = () => {
     targetNumber = Math.floor(Math.random() * 100);
+    lastNumbers.push(targetNumber)
+    if(lastNumbers.length>6){
+      lastNumbers.shift();
+    }
     currentNumber = 0;
     timeRemaining = 200; // Use the generated number for countdown time
     rocket=true;
 
     const timestamp = new Date().toISOString();
-    const data = { number: currentNumber, target: targetNumber, timestamp, time: timeRemaining * 1000 };
+    const data = { number: currentNumber, lastNumbers: targetNumber, timestamp, time: timeRemaining * 1000 };
 
     io.emit('newNumber', data);
 
@@ -24,12 +29,12 @@ const generateAndBroadcastNumber = (io) => {
       if (currentNumber < targetNumber) {
         // Increase the number
         currentNumber++;
-        io.emit('updateData', { number: currentNumber, time: timeRemaining ,rocket:rocket});
+        io.emit('updateData', { number: currentNumber, time: timeRemaining ,rocket:rocket,a:lastNumbers[0],b:lastNumbers[1],c:lastNumbers[2],d:lastNumbers[3],e:lastNumbers[4]});
       } else if (timeRemaining > 0) {
         rocket=false
         // Decrease the time
         timeRemaining--;
-        io.emit('updateData', { number: currentNumber, time: timeRemaining ,rocket:rocket});
+        io.emit('updateData', { number: currentNumber, time: timeRemaining ,rocket:rocket,a:lastNumbers[0],b:lastNumbers[1],c:lastNumbers[2],d:lastNumbers[3],e:lastNumbers[4]});
       } else {
         // End the interval when both conditions are met
         clearInterval(intervalId);
