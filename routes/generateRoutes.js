@@ -6,7 +6,8 @@ const bodyParser = require("body-parser");
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }));
 
-const { generateAndBroadcastNumber, sendMoney ,receiveMoney} = require('../controllers/generateController');
+const { generateAndBroadcastNumber, sendMoney ,receiveMoney,getTransactions} = require('../controllers/generateController');
+const { Routes } = require('react-router-dom');
 
 module.exports = (io) => {
   // Route to trigger number generation and broadcast
@@ -14,7 +15,7 @@ module.exports = (io) => {
     generateAndBroadcastNumber(io);
     res.send('Generate route');
   });
-
+  router.get('/getTrans',getTransactions)
   // Route to handle sending money
   router.post('/sendMoney', async (req, res) => {
     console.log(`>>>>>>>>>${JSON.stringify(req.body)}`)
