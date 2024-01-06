@@ -11,7 +11,8 @@ const userLogin = async (req, res) => {
           name: userData.name,
           phone: userData.phone,
           email:userData.email,
-          wallet:userData.wallet
+          wallet:userData.wallet,
+          avatar:userData.avatar
         };
   
         const response = {
@@ -30,7 +31,8 @@ const userLogin = async (req, res) => {
           const newUser = new User({
             phone: phone,
             email:req.body.email,
-            name:req.body.name
+            name:req.body.name,
+            avatar:req.body.avatar
             // Add any other required fields for signup
           });
     
@@ -39,7 +41,8 @@ const userLogin = async (req, res) => {
             _id: savedUser._id,
             name: savedUser.name,
             phone: savedUser.phone,
-            email:savedUser.email
+            email:savedUser.email,
+            avatar:savedUser.avatar,
           };
     
           const response = {

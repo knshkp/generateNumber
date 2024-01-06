@@ -1,6 +1,5 @@
 // generateController.js
-const User = require('../models/userModel'); // Assuming you have a User model
-
+const User = require('../models/userModel');
 const generateAndBroadcastNumber = (io) => {
   let targetNumber = 0;
   let currentNumber = 0;
@@ -36,13 +35,10 @@ const generateAndBroadcastNumber = (io) => {
   generateAndBroadcast();
 };
 
-// const User = require('../models/userModel');
-
-const sendMoney = async (req, res) => {
-  const { phone, amount } = req.body;
-
+const sendMoney = async (io, phone, time,amount) => {
   try {
     const sender = await User.findOne({ phone });
+
     if (!sender) {
       throw new Error('Sender not found');
     }
@@ -54,26 +50,19 @@ const sendMoney = async (req, res) => {
     sender.wallet -= amount;
     await sender.save();
 
-    // Uncomment this section if you want to handle the receiver's wallet update
-    // const receiver = await User.findById(receiverId);
-    // if (!receiver) {
-    //   throw new Error('Receiver not found');
-    // }
-    // receiver.wallet += amount;
-    // await receiver.save();
+    io.emit('walletUpdated', { userId: sender.id, newBalance: sender.wallet,time:time });
 
-    // Emit events to update sender's and receiver's wallets on the client side
-    io.emit('walletUpdated', { userId: sender.id, newBalance: sender.wallet });
-    // io.emit('walletUpdated', { userId: receiverId, newBalance: receiver.wallet });
-
-    res.status(200).json({ success: true, message: 'Money sent successfully' });
+    // Removed 'res' from here, as it's not available in this context
+    return { success: true, message: 'Money sent successfully' };
   } catch (error) {
     console.error('Error sending money:', error.message || error);
-    res.status(500).json({ success: false, message: 'Failed to send money. Please try again.' });
-  };
-}
-const receiveMoney = async (req, res) => {
-  const { phone, amount } = req.body;
+
+    // Removed 'res' from here, as it's not available in this context
+    throw new Error('Failed to send money. Please try again.');
+  }
+};
+
+const receiveMoney = async (io,phone,time,amount) => {
 
   try {
     const sender = await User.findOne({ phone });
@@ -81,31 +70,19 @@ const receiveMoney = async (req, res) => {
       throw new Error('Sender not found');
     }
 
-    if (sender.wallet < amount) {
-      throw new Error('Insufficient funds');
-    }
-
-    sender.wallet += amount;
+    // Assuming time is a valid numeric value
+    sender.wallet += amount * (time-30);
     await sender.save();
 
-    // Uncomment this section if you want to handle the receiver's wallet update
-    // const receiver = await User.findById(receiverId);
-    // if (!receiver) {
-    //   throw new Error('Receiver not found');
-    // }
-    // receiver.wallet += amount;
-    // await receiver.save();
+    io.emit('walletUpdated', { userId: sender.id, newBalance: sender.wallet,time:time });
 
-    // Emit events to update sender's and receiver's wallets on the client side
-    io.emit('walletUpdated', { userId: sender.id, newBalance: sender.wallet });
-    // io.emit('walletUpdated', { userId: receiverId, newBalance: receiver.wallet });
-
-    res.status(200).json({ success: true, message: 'Money sent successfully' });
+    return {success:true,message:"Money Receive Successfully"}
   } catch (error) {
-    console.error('Error sending money:', error.message || error);
-    res.status(500).json({ success: false, message: 'Failed to send money. Please try again.' });
-  };
-}
+    console.error('Error receiving money:', error.message || error);
+    res.status(500).json({ success: false, message: 'Failed to receive money. Please try again.' });
+  }
+};
+
 module.exports = {
   generateAndBroadcastNumber,
   sendMoney,
