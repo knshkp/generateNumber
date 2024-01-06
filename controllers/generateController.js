@@ -16,7 +16,7 @@ const generateAndBroadcastNumber = (io) => {
       lastNumbers.shift();
     }
     currentNumber = 0;
-    timeRemaining = 200; // Use the generated number for countdown time
+    timeRemaining = 100; // Use the generated number for countdown time
     rocket=true;
 
     const timestamp = new Date().toISOString();
@@ -40,7 +40,7 @@ const generateAndBroadcastNumber = (io) => {
         clearInterval(intervalId);
         generateAndBroadcast();
       }
-    }, 500);
+    }, 300);
   };
 
   // Call generateAndBroadcast to start the initial round
