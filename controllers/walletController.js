@@ -1,4 +1,5 @@
 // yourController.js
+const User=require('../models/userModel')
 const walletService = require('../Services/walletServices');
 const depositFunds = async (req, res) => {
   
@@ -12,6 +13,23 @@ const depositFunds = async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+const getWallet = async (req, res) => {
+  try {
+    const { phone } = req.query; // Assuming phone is in the request body
+    const wallet = await User.findOne({ phone });
+
+    if (!wallet) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const walletMoney = wallet.wallet;
+    res.status(200).json({ wallet:walletMoney });
+  } catch (error) {
+    console.error('Error getting wallet:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
 
 const withdrawFunds = async (req, res) => {
   const { phone, amount } = req.body;
@@ -27,4 +45,5 @@ const withdrawFunds = async (req, res) => {
 module.exports = {
   depositFunds,
   withdrawFunds,
+  getWallet
 };
