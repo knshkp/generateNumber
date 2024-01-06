@@ -5,11 +5,13 @@ const generateAndBroadcastNumber = (io) => {
   let currentNumber = 0;
   let timeRemaining = 10; // Initial countdown time in seconds
   let intervalId = null;
+  let rocket=true;
 
   const generateAndBroadcast = () => {
     targetNumber = Math.floor(Math.random() * 100);
     currentNumber = 0;
-    timeRemaining = targetNumber + 30; // Use the generated number for countdown time
+    timeRemaining = 200; // Use the generated number for countdown time
+    rocket=true;
 
     const timestamp = new Date().toISOString();
     const data = { number: currentNumber, target: targetNumber, timestamp, time: timeRemaining * 1000 };
@@ -18,22 +20,33 @@ const generateAndBroadcastNumber = (io) => {
 
     clearInterval(intervalId);
     intervalId = setInterval(() => {
-      timeRemaining--;
-
-      currentNumber = Math.min(targetNumber, currentNumber + 1);
-
-      io.emit('updateData', { number: currentNumber, target: targetNumber, time: timeRemaining });
-
-      if (timeRemaining <= 0) {
+      if (currentNumber < targetNumber) {
+        // Increase the number
+        currentNumber++;
+        io.emit('updateData', { number: currentNumber, time: timeRemaining ,rocket:rocket});
+      } else if (timeRemaining > 0) {
+        rocket=false
+        // Decrease the time
+        timeRemaining--;
+        io.emit('updateData', { number: currentNumber, time: timeRemaining ,rocket:rocket});
+      } else {
+        // End the interval when both conditions are met
         clearInterval(intervalId);
-        generateAndBroadcast(); // Start a new round
+        generateAndBroadcast();
       }
-    }, 1000);
+    }, 100);
   };
 
-  // Initial call to generateAndBroadcast
+  // Call generateAndBroadcast to start the initial round
+  
+
+  // Return a function that can be used to start a new round externally
   generateAndBroadcast();
 };
+
+
+
+
 
 const sendMoney = async (io, phone, time,amount) => {
   try {
