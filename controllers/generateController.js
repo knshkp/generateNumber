@@ -70,8 +70,6 @@ const sendMoney = async (io, phone, time,amount) => {
     // Add the new transaction
     userTransaction.transactions.push({ time, amount:-amount });
     await userTransaction.save();
-
-    res.status(201).json({ message: 'Transaction added successfully' })
     if (!sender) {
       throw new Error('Sender not found');
     }
@@ -124,7 +122,7 @@ const receiveMoney = async (io,phone,time,amount) => {
     return {success:true,message:"Money Receive Successfully"}
   } catch (error) {
     console.error('Error receiving money:', error.message || error);
-    res.status(500).json({ success: false, message: 'Failed to receive money. Please try again.' });
+    throw new Error("Server responded falsely")
   }
 };
 const getTransactions = async (req, res) => {
