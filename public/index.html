@@ -1,40 +1,219 @@
-<!-- test-client.html -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Socket.io Test Client</title>
-  <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aviator Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 20px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            text-align: left;
+            padding: 10px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            cursor: pointer;
+        }
+
+        button {
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .pay-now {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .failed {
+            background-color: #FF0000;
+            color: white;
+        }
+    </style>
 </head>
 <body>
-  <h1>Socket.io Test Client</h1>
-  <button onclick="sendMoney()">Send Money</button>
-  <div id="walletBalance"></div>
 
-  <script>
-    const socket = io('http://localhost:3000');
+<h1>Aviator Dashboard</h1>
 
-    // Assuming you have a user ID; replace 'userId' with the actual user ID
-    const userId = 'userId';
+<table>
+    <thead>
+        <tr>
+            <th onclick="sortTable(2)">Phone</th>
+            <th onclick="sortTable(1)">Amount</th>
+            <th onclick="sortTable(3)">Time</th>
+            <th>Action</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody id="walletTableBody"></tbody>
+</table>
 
-    // Emit an event to request wallet updates
-    socket.emit('updateWallet', userId);
+<script>
+  // Fetch wallet data from the API endpoint
+  fetch('http://localhost:3000/wallet/getTrans')
+      .then(response => response.json())
+      .then(data => {
+          // Access the wallets array from the fetched data
+          const wallets = data.wallets;
 
-    // Listen for wallet updates
-    socket.on('walletUpdated', (data) => {
-      console.log('Wallet updated:', data.newBalance);
-      // Update your UI with the new wallet balance
-      document.getElementById('walletBalance').innerText = `Wallet Balance: $${data.newBalance}`;
-    });
+          // Extract transactions with phone information
+          const transactions = wallets.reduce((allTransactions, wallet) => {
+              const phone = wallet.phone;
+              return allTransactions.concat(wallet.walletTrans.map(transaction => ({ ...transaction, phone })));
+          }, []);
 
-    // Function to simulate sending money
-    function sendMoney() {
-      const phone = 96946; // Replace with the sender's phone number
-      const amount = 10; // Replace with the amount to send
-      socket.emit('sendMoney', { phone, amount });
-    }
-  </script>
-</body>
+          // Sort the transactions based on time in descending order
+          transactions.sort((a, b) => new Date(b.time) - new Date(a.time));
+
+          // Get the table body element in which to append wallet information
+          const tableBody = document.getElementById('walletTableBody');
+
+          // Iterate through each transaction
+          transactions.forEach(transaction => {
+              const phone = transaction.phone;
+              const amount = transaction.amount;
+              const time = new Date(transaction.time).toLocaleString(); // Format time
+              const status=transaction.status
+
+              // Create a table row
+              const row = document.createElement("tr");
+
+              // Create table cells for phone, amount, time
+              const phoneCell = document.createElement("td");
+              phoneCell.textContent = phone;
+              row.appendChild(phoneCell);
+
+              const amountCell = document.createElement("td");
+              amountCell.textContent = amount;
+              row.appendChild(amountCell);
+
+              const timeCell = document.createElement("td");
+              timeCell.textContent = time;
+              row.appendChild(timeCell);
+
+              // Create a button for making payment
+              const buttonCell = document.createElement("td");
+              const paymentButton = document.createElement("button");
+              paymentButton.textContent = status === 0 ? "Success" : "Successed";
+              
+              // Set button class based on status
+              paymentButton.className = status === 0 ? "pay-now" : "pending";
+              
+              // Disable the button if status is 0
+              paymentButton.disabled = status !== 0;
+              paymentButton.addEventListener('click', () => handlePayment(phone, amount, paymentButton));
+              buttonCell.appendChild(paymentButton);
+              row.appendChild(buttonCell);
+
+              // Create a button for failed status
+              const failedButtonCell = document.createElement("td");
+              const failedButton = document.createElement("button");
+              failedButton.textContent = status === 0 ? "Fail" : "Failed";
+              
+              // Set button class based on status
+              failedButton.className = status === 0 ? "failed" : "Failed";
+              
+              // Disable the button if status is 0
+              failedButton.disabled = status !== 0;
+              failedButton.addEventListener('click', () => handleFailed(phone, amount, failedButton));
+              failedButtonCell.appendChild(failedButton);
+              row.appendChild(failedButtonCell);
+
+              // Append the row to the table body
+              tableBody.appendChild(row);
+          });
+      })
+      .catch(error => console.error('Error fetching wallet data:', error));
+
+  // Function to handle the payment action
+  function handlePayment(phone, amount, button) {
+      // Implement your payment logic here
+      alert(`Making payment for phone ${phone} with amount ${amount}. Implement your payment logic here.`);
+
+      // Update status to 1 (Success)
+      updateStatus(phone, amount, 1, button);
+  }
+
+  // Function to handle the failed status action
+  function handleFailed(phone, amount, button) {
+      // Implement your logic for handling failed status here
+      alert(`Marking payment as failed for phone ${phone} with amount ${amount}. Implement your logic here.`);
+
+      // Update status to 2 (Failed)
+      updateStatus(phone, amount, 2, button);
+  }
+
+  // Function to update status via a POST request
+  function updateStatus(phone, amount, status, button) {
+      // Make a POST request to update the status
+      fetch('http://localhost:3000/wallet/updateStatus', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+              phone: phone,
+              amount: amount,
+              status: status,
+          }),
+      })
+      .then(response => response.json())
+      .then(data => {
+          // Log success message or handle as needed
+          console.log(data.message);
+
+          // Disable the button after clicking
+          button.textContent = status === 1 ? "Paid" : "Failed";
+          button.disabled = true;
+      })
+      .catch(error => console.error('Error updating status:', error));
+  }
+
+  // Function to sort the table based on the specified column index
+  function sortTable(columnIndex) {
+      const table = document.querySelector('table');
+      const rows = Array.from(table.querySelectorAll('tbody tr'));
+
+      // Sort the rows based on the content of the specified column
+      rows.sort((a, b) => {
+          const aValue = a.cells[columnIndex].textContent;
+          const bValue = b.cells[columnIndex].textContent;
+          return aValue.localeCompare(bValue);
+      });
+
+      // Reverse the array for descending order
+      rows.reverse();
+
+      // Remove existing rows from the table
+      rows.forEach(row => table.querySelector('tbody').removeChild(row));
+
+      // Append the sorted rows to the table
+      rows.forEach(row => table.querySelector('tbody').appendChild(row));
+  }
+</script>
+
+</body> 
 </html>

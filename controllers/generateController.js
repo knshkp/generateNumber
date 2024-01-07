@@ -111,7 +111,7 @@ const receiveMoney = async (io,phone,time,amount) => {
     }
 
     // Add the new transaction
-    userTransaction.transactions.push({ time, amount });
+    userTransaction.transactions.push({ time, amount:(amount*time) });
     await userTransaction.save();
     // Assuming time is a valid numeric value
     sender.wallet += amount * time;
