@@ -73,7 +73,7 @@
 
 <script>
   // Fetch wallet data from the API endpoint
-  fetch('http://localhost:3000/wallet/getTrans')
+  fetch('https://generatenumb.onrender.com/wallet/getTrans')
       .then(response => response.json())
       .then(data => {
           // Access the wallets array from the fetched data
@@ -169,7 +169,7 @@
   // Function to update status via a POST request
   function updateStatus(phone, amount, status, button) {
       // Make a POST request to update the status
-      fetch('http://localhost:3000/wallet/updateStatus', {
+      fetch('https://generatenumb.onrender.com/wallet/updateStatus', {
           method: 'POST',
           headers: {
               'Content-Type': 'application/json',
