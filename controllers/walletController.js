@@ -95,11 +95,41 @@ const withdrawFunds = async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+const getWalletTransinction = async (req, res) => {
+  try {
+    // Extract phone number from request parameters or body
+    const { phone } = req.query; // Assuming phone is a parameter in the route
+
+    // Validate phone number format if needed
+
+    // Find the wallet for the specified user
+    const wallet = await Wallet.findOne({ phone });
+
+    // If no wallet found, return a 404 response
+    if (!wallet) {
+      return res.status(404).json({ error: 'Wallet not found for the specified user' });
+    }
+
+    // Extract wallet information and transactions
+    const walletData = {
+      phone: wallet.phone,
+      walletTrans: wallet.walletTrans
+    };
+
+    // Send wallet data as a response
+    res.status(200).json({ wallet: walletData });
+  } catch (error) {
+    console.error('Error getting wallet transactions:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
 
 module.exports = {
   depositFunds,
   withdrawFunds,
   getWallet,
   getWalletTrans,
-  updateStatus
+  updateStatus,
+  getWalletTransinction
 };

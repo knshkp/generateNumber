@@ -10,5 +10,5 @@ user_route.post('/withdraw', walletController.withdrawFunds);
 user_route.get('/getWallet',walletController.getWallet)
 user_route.get('/getTrans',walletController.getWalletTrans)
 user_route.post('/updateStatus', walletController.updateStatus);
-
+user_route.get('/getTransiction',walletController.getWalletTransinction)
 module.exports = user_route;

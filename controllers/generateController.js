@@ -55,22 +55,35 @@ const generateAndBroadcastNumber = (io) => {
 
 const sendMoney = async (io, phone, time, amount) => {
   try {
-    const updateResult = await User.updateOne(
-      { phone, wallet: { $gte: amount } },
-      { $inc: { wallet: -amount } }
-    );
+    const [sender, userTransaction] = await Promise.all([
+      User.findOne({ phone }),
+      Transaction.findOne({ phone })
+    ]);
 
-    if (updateResult.nModified === 0) {
-      throw new Error('Sender not found or insufficient funds');
+    if (!userTransaction) {
+      userTransaction = new Transaction({
+        phone,
+        transactions: []
+      });
     }
 
-    await Transaction.updateOne(
-      { phone },
-      { $push: { transactions: { time, amount: -amount } } },
-      { upsert: true }
-    );
+    userTransaction.transactions.push({ time, amount: -amount });
 
-    io.emit('walletUpdated', { phone, newBalance: updateResult.wallet - amount, time });
+    // Use a batch save for better performance
+    await Promise.all([userTransaction.save(), sender.save()]);
+
+    if (!sender) {
+      throw new Error('Sender not found');
+    }
+
+    if (sender.wallet < amount) {
+      throw new Error('Insufficient funds');
+    }
+
+    sender.wallet -= amount;
+    await sender.save();
+
+    io.emit('walletUpdated', { phone, newBalance: sender.wallet, time });
 
     return { success: true, message: 'Money sent successfully' };
   } catch (error) {
@@ -81,22 +94,28 @@ const sendMoney = async (io, phone, time, amount) => {
 
 const receiveMoney = async (io, phone, time, amount) => {
   try {
-    const updateResult = await User.updateOne(
-      { phone },
-      { $inc: { wallet: amount * time } }
-    );
+    const [sender, userTransaction] = await Promise.all([
+      User.findOne({ phone }),
+      Transaction.findOne({ phone })
+    ]);
 
-    if (updateResult.nModified === 0) {
+    if (!sender) {
       throw new Error('Sender not found');
     }
 
-    await Transaction.updateOne(
-      { phone },
-      { $push: { transactions: { time, amount: amount * time } } },
-      { upsert: true }
-    );
+    if (!userTransaction) {
+      userTransaction = new Transaction({
+        phone,
+        transactions: []
+      });
+    }
 
-    io.emit('walletUpdated', { phone, newBalance: updateResult.wallet + amount * time, time });
+    userTransaction.transactions.push({ time, amount: amount * time });
+
+    // Use a batch save for better performance
+    await Promise.all([userTransaction.save(), sender.save()]);
+
+    io.emit('walletUpdated', { phone, newBalance: sender.wallet, time });
 
     return { success: true, message: 'Money received successfully' };
   } catch (error) {
