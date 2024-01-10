@@ -53,78 +53,58 @@ const generateAndBroadcastNumber = (io) => {
 
 
 
-
-const sendMoney = async (io, phone, time,amount) => {
+const sendMoney = async (io, phone, time, amount) => {
   try {
-    const sender = await User.findOne({ phone });
-    let userTransaction = await Transaction.findOne({phone})
+    const updateResult = await User.updateOne(
+      { phone, wallet: { $gte: amount } },
+      { $inc: { wallet: -amount } }
+    );
 
-    // If the user doesn't exist, create a new entry
-    if (!userTransaction) {
-      userTransaction = new Transaction({
-        phone,
-        transactions: []
-      });
+    if (updateResult.nModified === 0) {
+      throw new Error('Sender not found or insufficient funds');
     }
 
-    // Add the new transaction
-    userTransaction.transactions.push({ time, amount:-amount });
-    await userTransaction.save();
-    if (!sender) {
-      throw new Error('Sender not found');
-    }
+    await Transaction.updateOne(
+      { phone },
+      { $push: { transactions: { time, amount: -amount } } },
+      { upsert: true }
+    );
 
-    if (sender.wallet < amount) {
-      throw new Error('Insufficient funds');
-    }
+    io.emit('walletUpdated', { phone, newBalance: updateResult.wallet - amount, time });
 
-    sender.wallet -= amount;
-    await sender.save();
-
-    io.emit('walletUpdated', { phone: phone, newBalance: sender.wallet,time:time });
-
-    // Removed 'res' from here, as it's not available in this context
     return { success: true, message: 'Money sent successfully' };
   } catch (error) {
     console.error('Error sending money:', error.message || error);
-
-    // Removed 'res' from here, as it's not available in this context
     throw new Error('Failed to send money. Please try again.');
   }
 };
 
-const receiveMoney = async (io,phone,time,amount) => {
-
+const receiveMoney = async (io, phone, time, amount) => {
   try {
-    const sender = await User.findOne({ phone });
-    if (!sender) {
+    const updateResult = await User.updateOne(
+      { phone },
+      { $inc: { wallet: amount * time } }
+    );
+
+    if (updateResult.nModified === 0) {
       throw new Error('Sender not found');
     }
-    let userTransaction = await Transaction.findOne({phone})
 
-    // If the user doesn't exist, create a new entry
-    if (!userTransaction) {
-      userTransaction = new Transaction({
-        phone,
-        transactions: []
-      });
-    }
+    await Transaction.updateOne(
+      { phone },
+      { $push: { transactions: { time, amount: amount * time } } },
+      { upsert: true }
+    );
 
-    // Add the new transaction
-    userTransaction.transactions.push({ time, amount:(amount*time) });
-    await userTransaction.save();
-    // Assuming time is a valid numeric value
-    sender.wallet += amount * time;
-    await sender.save();
+    io.emit('walletUpdated', { phone, newBalance: updateResult.wallet + amount * time, time });
 
-    io.emit('walletUpdated', { phone: phone, newBalance: sender.wallet,time:time });
-
-    return {success:true,message:"Money Receive Successfully"}
+    return { success: true, message: 'Money received successfully' };
   } catch (error) {
     console.error('Error receiving money:', error.message || error);
-    throw new Error("Server responded falsely")
+    throw new Error('Server responded falsely');
   }
 };
+
 const getTransactions = async (req, res) => {
   const { phone } = req.query;
 

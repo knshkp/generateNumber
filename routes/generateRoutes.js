@@ -17,7 +17,6 @@ module.exports = (io) => {
   router.get('/getTrans',getTransactions)
   // Route to handle sending money
   router.post('/sendMoney', async (req, res) => {
-    console.log(`>>>>>>>>>${JSON.stringify(req.body)}`)
     const { phone, time, amount } = req.body;
 
     try {
@@ -29,7 +28,6 @@ module.exports = (io) => {
     }
   });
   router.post('/receiveMoney', async (req, res) => {
-    console.log(`>>>>>>>>>${JSON.stringify(req.body)}`)
     const { phone, time, amount } = req.body;
 
     try {
