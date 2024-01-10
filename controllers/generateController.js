@@ -109,7 +109,8 @@ const receiveMoney = async (io, phone, time, amount) => {
         transactions: []
       });
     }
-
+    sender.wallet+=amount*time;
+    await sender.save()
     userTransaction.transactions.push({ time, amount: amount * time });
 
     // Use a batch save for better performance
