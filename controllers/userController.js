@@ -57,4 +57,34 @@ const userLogin = async (req, res) => {
       res.status(400).send(error.message);
     }
   };
-  module.exports=userLogin;
+  const updateProfile=async (req,res)=>{
+    const phone = req.body.phone;
+    const existingUser = await User.findOne({ phone: phone });
+
+    if (existingUser) {
+      // User exists, update user details
+      existingUser.name = req.body.name || existingUser.name;
+      existingUser.email = req.body.email || existingUser.email;
+      existingUser.avatar = req.body.avatar || existingUser.avatar;
+
+      const updatedUser = await existingUser.save();
+
+      const userResult = {
+        _id: updatedUser._id,
+        name: updatedUser.name,
+        phone: updatedUser.phone,
+        email: updatedUser.email,
+        wallet: updatedUser.wallet,
+        avatar: updatedUser.avatar,
+      };
+
+      const response = {
+        success: true,
+        msg: "User details updated successfully",
+        data: userResult,
+      };
+
+      res.status(200).send(response);
+    }
+  }
+  module.exports={userLogin,updateProfile};

@@ -1,6 +1,7 @@
 // generateController.js
 const User = require('../models/userModel');
 const Transaction=require('../models/transictionsModel')
+let topBets = [{ phone: '', amount: 0 }, { phone: '', amount: 0 }, { phone: '', amount: 0 }, { phone: '', amount: 0 }, { phone: '', amount: 0 }];
 const generateAndBroadcastNumber = (io) => {
   let lastNumbers=[0,0,0,0,0,0]
   let targetNumber = 0;
@@ -30,13 +31,18 @@ const generateAndBroadcastNumber = (io) => {
         // Increase the number
         currentNumber++;
         io.emit('updateData', { number: currentNumber, time: timeRemaining ,rocket:rocket,a:lastNumbers[0],b:lastNumbers[1],c:lastNumbers[2],d:lastNumbers[3],e:lastNumbers[4]});
+        io.emit('bet', { a: topBets[0], b: topBets[1], c: topBets[2], d: topBets[3], e: topBets[4],f:topBets[5],f:topBets[6],g:topBets[7],h:topBets[8],i:topBets[9]});
+
       } else if (timeRemaining > 0) {
         rocket=false
         // Decrease the time
         timeRemaining--;
         io.emit('updateData', { number: currentNumber, time: timeRemaining ,rocket:rocket,a:lastNumbers[0],b:lastNumbers[1],c:lastNumbers[2],d:lastNumbers[3],e:lastNumbers[4]});
-      } else {
+        io.emit('bet', { a: topBets[0], b: topBets[1], c: topBets[2], d: topBets[3], e: topBets[4],f:topBets[5],f:topBets[6],g:topBets[7],h:topBets[8],i:topBets[9]});
+      }
         // End the interval when both conditions are met
+        else{
+          topBets = [{ phone: '', amount: 0 }, { phone: '', amount: 0 }, { phone: '', amount: 0 }, { phone: '', amount: 0 }, { phone: '', amount: 0 }];
         clearInterval(intervalId);
         generateAndBroadcast();
       }
@@ -49,7 +55,6 @@ const generateAndBroadcastNumber = (io) => {
   // Return a function that can be used to start a new round externally
   generateAndBroadcast();
 };
-
 
 
 
@@ -68,6 +73,13 @@ const sendMoney = async (io, phone, time, amount) => {
     }
 
     userTransaction.transactions.push({ time, amount: -amount });
+    topBets.push({ phone, amount });
+    topBets.sort((a, b) => b.amount - a.amount);
+
+    // Keep only the top 5 bets
+    if (topBets.length > 10) {
+      topBets.pop();
+    }
 
     // Use a batch save for better performance
     await Promise.all([userTransaction.save(), sender.save()]);
@@ -77,15 +89,17 @@ const sendMoney = async (io, phone, time, amount) => {
     }
 
     if (sender.wallet < amount) {
-      throw new Error('Insufficient funds');
+      io.emit('walletUpdated',"Insufficient Funds")
     }
+    else{
 
-    sender.wallet -= amount;
-    await sender.save();
+      sender.wallet -= amount;
+      await sender.save();
 
-    io.emit('walletUpdated', { phone, newBalance: sender.wallet, time });
+      io.emit('walletUpdated', { phone, newBalance: sender.wallet, time });
 
-    return { success: true, message: 'Money sent successfully' };
+      return { success: true, message: 'Money sent successfully' };
+    }
   } catch (error) {
     console.error('Error sending money:', error.message || error);
     throw new Error('Failed to send money. Please try again.');

@@ -5,6 +5,7 @@ const user_controller = require('../controllers/userController');
 user_route.use(bodyParser.json());
 user_route.use(bodyParser.urlencoded({ extended: true }));
 
-user_route.post('/login', user_controller);
+user_route.post('/login', user_controller.userLogin);
+user_route.post('/update',user_controller.updateProfile)
 
 module.exports = user_route;
