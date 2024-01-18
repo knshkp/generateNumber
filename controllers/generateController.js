@@ -1,7 +1,7 @@
 // generateController.js
 const User = require('../models/userModel');
 const Transaction=require('../models/transictionsModel')
-let topBets = [{ phone: '', amount: 0 }, { phone: '', amount: 0 }, { phone: '', amount: 0 }, { phone: '', amount: 0 }, { phone: '', amount: 0 }];
+let topBets = [{ phone: '', amount: 0,avatar:'' }, { phone: '', amount: 0,avatar:'' }, { phone: '', amount: 0,avatar:'' }, { phone: '', amount: 0 ,avatar:''}, { phone: '', amount: 0,avatar:'' }];
 const generateAndBroadcastNumber = (io) => {
   let lastNumbers=[0,0,0,0,0,0]
   let targetNumber = 0;

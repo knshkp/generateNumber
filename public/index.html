@@ -7,9 +7,43 @@
     <title>Aviator Dashboard</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
             background-color: #f5f5f5;
+        }
+
+        /* Side Navigation Bar Styles */
+        .sidenav {
+            width: 250px;
+            height: 100%;
+            background-color: #333;
+            padding-top: 20px;
+            position: fixed;
+            overflow-y: auto;
+        }
+
+        .sidenav a {
+            padding: 10px;
+            text-decoration: none;
+            font-size: 18px;
+            color: white;
+            display: block;
+            transition: background-color 0.3s;
+        }
+
+        .sidenav a:hover {
+            background-color: #555;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+            background-color: #fff;
+            flex-grow: 1;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
         h1 {
@@ -27,11 +61,12 @@
         th, td {
             border: 1px solid #ddd;
             text-align: left;
-            padding: 10px;
+            padding: 12px;
         }
 
         th {
-            background-color: #f2f2f2;
+            background-color: #4CAF50;
+            color: white;
             cursor: pointer;
         }
 
@@ -41,6 +76,7 @@
             border: none;
             cursor: pointer;
             width: 100%;
+            border-radius: 4px;
         }
 
         .pay-now {
@@ -52,25 +88,67 @@
             background-color: #FF0000;
             color: white;
         }
+
+        /* Additional styles for the stats table */
+        #statsTable {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        #statsTable th, #statsTable td {
+            border: 1px solid #ddd;
+            padding: 15px;
+            text-align: left;
+        }
+
+        #statsTable th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        #statsTable td {
+            background-color: #f2f2f2;
+        }
     </style>
 </head>
 <body>
-
-<h1>Aviator Dashboard</h1>
-
-<table>
-    <thead>
-        <tr>
-            <th onclick="sortTable(2)">Phone</th>
-            <th onclick="sortTable(1)">Amount</th>
-            <th onclick="sortTable(3)">Time</th>
-            <th>Action</th>
-            <th>Status</th>
-        </tr>
-    </thead>
-    <tbody id="walletTableBody"></tbody>
-</table>
-
+    <div class="sidenav">
+        <a href="#transactions" onclick="showSection('transactions')">Transactions</a>
+        <a href="#stats" onclick="showSection('stats')">Stats</a>
+        <a href="#settings" onclick="showSection('settings')">Users</a>
+        <!-- Add more links as needed -->
+    </div>
+    <div class="main-content" id="trans">
+        <h1>Aviator Dashboard</h1>
+        <div id="transactions">
+            <!-- ... Your existing transaction table ... -->
+            <table>
+                <thead>
+                    <tr>
+                        <th onclick="sortTable(2)">Phone</th>
+                        <th onclick="sortTable(1)">Amount</th>
+                        <th onclick="sortTable(3)">Time</th>
+                        <th>Action</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="walletTableBody"></tbody>
+            </table>
+        </div>
+        <div id="stats">
+            <h2>Stats Section</h2>
+            <table id="statsTable">
+                <!-- Content will be dynamically added using JavaScript -->
+            </table>
+        </div>
+        <div id="settings">
+            <h2>Settings Section</h2>
+            <!-- Add your settings content here -->
+        </div>
+    </div>
 <script>
   // Fetch wallet data from the API endpoint
   fetch('https://generatenumb.onrender.com/wallet/getTrans')
@@ -148,6 +226,99 @@
       })
       .catch(error => console.error('Error fetching wallet data:', error));
 
+      function showSection(sectionId) {
+                // Hide all sections
+                document.getElementById('transactions').style.display = 'none';
+                document.getElementById('stats').style.display = 'none';
+                document.getElementById('settings').style.display = 'none';
+
+                // Show the selected section
+                document.getElementById(sectionId).style.display = 'block';
+
+                // If the Stats section is clicked, update the stats table
+                if (sectionId === 'stats') {
+                    updateStatsTable();
+                }
+            }
+            function updateStatsTable() {
+                // Fetch wallet data from the API endpoint
+                fetch('https://generatenumb.onrender.com/wallet/getTrans')
+                    .then(response => response.json())
+                    .then(data => {
+                        // Access the wallets array from the fetched data
+                        const wallets = data.wallets;
+
+                        // Extract transactions with phone information
+                        const transactions = wallets.reduce((allTransactions, wallet) => {
+                            const phone = wallet.phone;
+                            return allTransactions.concat(wallet.walletTrans.map(transaction => ({ ...transaction, phone })));
+                        }, []);
+
+                        // Variables to store total deposit and total withdraw amounts
+                        let totalDeposit = 0;
+                        let totalWithdraw = 0;
+                        let totalProfit=0;
+                        // Iterate through each transaction
+                        transactions.forEach(transaction => {
+                            const amount = transaction.amount;
+
+                            // Calculate total deposit and withdraw amounts
+                            if (amount > 0) {
+                                totalDeposit += amount;
+                            } else {
+                                totalWithdraw += Math.abs(amount); // Make the amount positive for total withdraw
+                            }
+                        });
+                        totalProfit=(totalDeposit-totalWithdraw);
+
+                        // Display total deposit and total withdraw in the Stats section
+                        const statsTable = document.getElementById('statsTable');
+                        // Clear existing content
+                        statsTable.innerHTML = '';
+
+                        // Create rows for total deposit and total withdraw
+                        const totalDepositRow = document.createElement('tr');
+                        const totalDepositCellLabel = document.createElement('td');
+                        totalDepositCellLabel.textContent = 'Total Deposit:';
+                        const totalDepositCellAmount = document.createElement('td');
+                        totalDepositCellAmount.textContent = totalDeposit.toFixed(2); // Format as needed
+                        totalDepositRow.appendChild(totalDepositCellLabel);
+                        totalDepositRow.appendChild(totalDepositCellAmount);
+
+                        const totalWithdrawRow = document.createElement('tr');
+                        const totalWithdrawCellLabel = document.createElement('td');
+                        totalWithdrawCellLabel.textContent = 'Total Withdraw:';
+                        const totalWithdrawCellAmount = document.createElement('td');
+                        totalWithdrawCellAmount.textContent = totalWithdraw.toFixed(2); // Format as needed
+                        totalWithdrawRow.appendChild(totalWithdrawCellLabel);
+                        totalWithdrawRow.appendChild(totalWithdrawCellAmount);
+                        const totalProfitRow = document.createElement('tr');
+                        const totalProfitCellLabel = document.createElement('td');
+                        totalProfitCellLabel.textContent = 'Total Profit:';
+                        const totalProfitCellAmount = document.createElement('td');
+                        totalProfitCellAmount.textContent = totalWithdraw.toFixed(2); // Format as needed
+                        totalProfitRow.appendChild(totalProfitCellLabel);
+                        totalProfitRow.appendChild(totalProfitCellAmount);
+
+                        // Append rows to the stats table
+                        statsTable.appendChild(totalDepositRow);
+                        statsTable.appendChild(totalWithdrawRow);
+                        statsTable.appendChild(totalProfitRow);
+                    })
+                    .catch(error => console.error('Error fetching wallet data:', error));
+            }
+            function toggleSidebar() {
+            const sidenav = document.querySelector('.sidenav');
+            const mainContent = document.querySelector('.main-content');
+
+            if (sidenav.style.width === '250px') {
+                sidenav.style.width = '0';
+                mainContent.style.marginLeft = '0';
+            } else {
+                sidenav.style.width = '250px';
+                mainContent.style.marginLeft = '250px';
+            }
+        }
   // Function to handle the payment action
   function handlePayment(phone, amount, button) {
       // Implement your payment logic here
