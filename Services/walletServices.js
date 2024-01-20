@@ -75,7 +75,7 @@ const deductFunds = async (phone, amount,paymentId) => {
     }
 
     // Add the new transaction with a negative amount to represent deduction
-    wallet.walletTrans.push({ time: new Date(), amount: -amount, status: 0,paymentId });
+    wallet.walletTrans.push({ time: new Date(), amount: -amount, status: 0,paymentId,bankId,ifscCode });
     await wallet.save();
 
     // Return updated user wallet balance

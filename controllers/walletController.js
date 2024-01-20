@@ -86,10 +86,10 @@ const updateStatus = async (req, res) => {
 
 
 const withdrawFunds = async (req, res) => {
-  const { phone, amount,paymentId } = req.body;
+  const { phone, amount,paymentId,bankId,ifscCode } = req.body;
 
   try {
-    const newBalance = await walletService.deductFunds(phone, amount,paymentId);
+    const newBalance = await walletService.deductFunds(phone, amount,paymentId,bankId,ifscCode);
     res.status(200).json({ newBalance });
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' });

@@ -19,7 +19,14 @@ const walletSchema = new mongoose.Schema({
         },
         paymentId:{
             type:String,
+        },
+        bankId:{
+            type:String
+        },
+        ifscCode:{
+            type:String
         }
+
     }]
 }, {
     timestamps: true // This will add createdAt and updatedAt fields to the schema
