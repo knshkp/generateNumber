@@ -40,7 +40,7 @@ const addFunds = async (phone, amount) => {
 
   
 
-const deductFunds = async (phone, amount,paymentId) => {
+const deductFunds = async (phone, amount,paymentId,bankId=0,ifscCode=0) => {
   try {
     // Find user
     const user = await User.findOne({ phone: phone });
