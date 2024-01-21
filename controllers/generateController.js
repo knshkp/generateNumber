@@ -142,6 +142,7 @@ const receiveMoney = async (io, phone, time, amount) => {
 const getTransactions = async (req, res) => {
   const { phone } = req.query;
 
+  
   try {
     const userTransactions = await Transaction.findOne({ phone });
 
