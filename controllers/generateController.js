@@ -16,8 +16,8 @@ const generateAndBroadcastNumber = (io) => {
     if(lastNumbers.length>6){
       lastNumbers.shift();
     }
-    currentNumber = 0;
-    timeRemaining = 100; // Use the generated number for countdown time
+    currentNumber = 1;
+    timeRemaining = 70; // Use the generated number for countdown time
     rocket=true;
 
     const timestamp = new Date().toISOString();
@@ -29,7 +29,7 @@ const generateAndBroadcastNumber = (io) => {
     intervalId = setInterval(() => {
       if (currentNumber < targetNumber) {
         // Increase the number
-        currentNumber++;
+        currentNumber = Math.round(currentNumber * 1.1)+1;
         io.emit('updateData', { number: currentNumber, time: timeRemaining ,rocket:rocket,a:lastNumbers[0],b:lastNumbers[1],c:lastNumbers[2],d:lastNumbers[3],e:lastNumbers[4]});
         io.emit('bet', { a: topBets[0], b: topBets[1], c: topBets[2], d: topBets[3], e: topBets[4],f:topBets[5],f:topBets[6],g:topBets[7],h:topBets[8],i:topBets[9]});
 
@@ -46,7 +46,7 @@ const generateAndBroadcastNumber = (io) => {
         clearInterval(intervalId);
         generateAndBroadcast();
       }
-    }, 200);
+    }, 300);
   };
 
   // Call generateAndBroadcast to start the initial round
