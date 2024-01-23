@@ -59,13 +59,13 @@ const generateAndBroadcastNumber = (io) => {
 
 
 const sendMoney = async (io, phone, time, amount) => {
+  console.log(`>>>>>>>>>>${phone}>>>>>>${amount}`);
   try {
-    const [sender, userTransaction] = await Promise.all([
-      User.findOne({ phone }),
-      Transaction.findOne({ phone })
-    ]);
+    let userTransaction = await Transaction.findOne({ phone });
 
     if (!userTransaction) {
+      // Create a new transaction only if it doesn't exist
+      // Otherwise, use the existing transaction
       userTransaction = new Transaction({
         phone,
         transactions: []
@@ -73,26 +73,28 @@ const sendMoney = async (io, phone, time, amount) => {
     }
 
     userTransaction.transactions.push({ time, amount: -amount });
+
+    // Assuming topBets is declared somewhere in your code
     topBets.push({ phone, amount });
     topBets.sort((a, b) => b.amount - a.amount);
 
-    // Keep only the top 5 bets
+    // Keep only the top 10 bets
     if (topBets.length > 10) {
       topBets.pop();
     }
 
     // Use a batch save for better performance
-    await Promise.all([userTransaction.save(), sender.save()]);
+    await Promise.all([userTransaction.save()]);
+
+    const sender = await User.findOne({ phone });
 
     if (!sender) {
       throw new Error('Sender not found');
     }
 
     if (sender.wallet < amount) {
-      io.emit('walletUpdated',"Insufficient Funds")
-    }
-    else{
-
+      io.emit('walletUpdated', { error: 'Insufficient Funds' });
+    } else {
       sender.wallet -= amount;
       await sender.save();
 
@@ -102,9 +104,11 @@ const sendMoney = async (io, phone, time, amount) => {
     }
   } catch (error) {
     console.error('Error sending money:', error.message || error);
+    io.emit('walletUpdated', { error: 'Failed to send money. Please try again.' });
     throw new Error('Failed to send money. Please try again.');
   }
 };
+
 
 const receiveMoney = async (io, phone, time, amount) => {
   try {
