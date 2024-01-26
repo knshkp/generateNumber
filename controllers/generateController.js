@@ -2,6 +2,31 @@
 const User = require('../models/userModel');
 const Transaction=require('../models/transictionsModel')
 let topBets = [{ phone: '', amount: 0,avatar:'' }, { phone: '', amount: 0,avatar:'' }, { phone: '', amount: 0,avatar:'' }, { phone: '', amount: 0 ,avatar:''}, { phone: '', amount: 0,avatar:'' }];
+function normalDistributionRandom(mean, stdDeviation) {
+  let u = 0,
+    v = 0;
+  while (u === 0) u = Math.random(); // Converting [0,1) to (0,1)
+  while (v === 0) v = Math.random();
+  const z = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+
+  // Scale and shift the generated number to match the desired mean and standard deviation
+  const randomNum = mean + stdDeviation * z;
+
+  return randomNum;
+}
+function generateBiasedNumber() {
+  // Mean and standard deviation values for the normal distribution
+  const mean = 100;
+  const stdDeviation = 50;
+
+  // Generate a random number from a normal distribution
+  const randomNum = normalDistributionRandom(mean, stdDeviation);
+
+  // Ensure the generated number is within the desired range (100 to 1000)
+  const biasedNumber = Math.max(100, Math.min(1000, randomNum));
+
+  return biasedNumber;
+}
 const generateAndBroadcastNumber = (io) => {
   let lastNumbers=[0,0,0,0,0,0]
   let targetNumber = 0;
@@ -11,12 +36,12 @@ const generateAndBroadcastNumber = (io) => {
   let rocket=true;
 
   const generateAndBroadcast = () => {
-    targetNumber = Math.floor(Math.random() * 100);
+    targetNumber = generateBiasedNumber();
     lastNumbers.push(targetNumber)
     if(lastNumbers.length>6){
       lastNumbers.shift();
     }
-    currentNumber = 1;
+    currentNumber = 100;
     timeRemaining = 70; // Use the generated number for countdown time
     rocket=true;
 
@@ -29,7 +54,7 @@ const generateAndBroadcastNumber = (io) => {
     intervalId = setInterval(() => {
       if (currentNumber < targetNumber) {
         // Increase the number
-        currentNumber = Math.round(currentNumber * 1.1)+1;
+        currentNumber = Math.round(currentNumber * 1.005)+1;
         io.emit('updateData', { number: currentNumber, time: timeRemaining ,rocket:rocket,a:lastNumbers[0],b:lastNumbers[1],c:lastNumbers[2],d:lastNumbers[3],e:lastNumbers[4]});
         io.emit('bet', { a: topBets[0], b: topBets[1], c: topBets[2], d: topBets[3], e: topBets[4],f:topBets[5],f:topBets[6],g:topBets[7],h:topBets[8],i:topBets[9]});
 
@@ -46,7 +71,7 @@ const generateAndBroadcastNumber = (io) => {
         clearInterval(intervalId);
         generateAndBroadcast();
       }
-    }, 300);
+    }, 200);
   };
 
   // Call generateAndBroadcast to start the initial round
@@ -58,7 +83,7 @@ const generateAndBroadcastNumber = (io) => {
 
 
 
-const sendMoney = async (io, phone, time, amount) => {
+const sendMoney = async (io, phone, time, amount,avatar) => {
   console.log(`>>>>>>>>>>${phone}>>>>>>${amount}`);
   try {
     let userTransaction = await Transaction.findOne({ phone });
@@ -73,10 +98,6 @@ const sendMoney = async (io, phone, time, amount) => {
     }
 
     userTransaction.transactions.push({ time, amount: -amount });
-
-    // Assuming topBets is declared somewhere in your code
-    topBets.push({ phone, amount });
-    topBets.sort((a, b) => b.amount - a.amount);
 
     // Keep only the top 10 bets
     if (topBets.length > 10) {
@@ -116,6 +137,20 @@ const receiveMoney = async (io, phone, time, amount) => {
       User.findOne({ phone }),
       Transaction.findOne({ phone })
     ]);
+    const referredUsers = await User.findOne({ refer_id: { $in: sender.user_id } });
+    console.log(`>>>>>>>>>rederred>>>>${referredUsers}`)
+    if (referredUsers) {
+      // Calculate 10 percent of the winning amount
+      const referralBonus = 0.1 * amount*time;
+  
+      // Add the referral bonus to the referring user's account
+      referredUsers.referred_wallet += referralBonus;
+  
+      // Save the updated referring user
+      await referredUsers.save();
+  
+      console.log(`Referral bonus of ${referralBonus} added to the account balance of user with user_id: ${referredUsers.user_id}`);
+    }
 
     if (!sender) {
       throw new Error('Sender not found');
@@ -128,6 +163,7 @@ const receiveMoney = async (io, phone, time, amount) => {
       });
     }
     sender.wallet+=amount*time;
+    sender.withdrwarl_amount+=amount*time;
     await sender.save()
     userTransaction.transactions.push({ time, amount: amount * time });
 

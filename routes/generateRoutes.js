@@ -17,7 +17,7 @@ module.exports = (io) => {
   router.get('/getTrans',getTransactions)
   // Route to handle sending money
   router.post('/sendMoney', async (req, res) => {
-    const { phone, time, amount } = req.body;
+    const { phone, time, amount,avatar } = req.body;
 
     try {
       await sendMoney(io, phone,time, amount);

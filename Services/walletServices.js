@@ -54,12 +54,13 @@ const deductFunds = async (phone, amount,paymentId,bankId=0,ifscCode=0) => {
     }
 
     // If insufficient funds, throw an error
-    if (user.wallet < amount) {
+    if (user.withdrwarl_amount < amount) {
       throw new Error('Insufficient funds');
     }
 
     // Deduct amount from user's wallet
     user.wallet -= amount;
+    user.withdrwarl_amount-=amount
     await user.save();
 
     // If wallet not found, create a new one

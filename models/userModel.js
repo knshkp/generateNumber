@@ -1,6 +1,10 @@
 const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
+  user_id:{
+    type:String,
+    required:true
+  },
   name: {
     type: String,
     required:true
@@ -23,6 +27,21 @@ const userSchema = new mongoose.Schema({
   },
   avatar:{
     type:Number
+  },
+  refer_id:{
+    type:[Number]
+  },
+  referredWallet:{
+    type:Number,
+    default:0
+  },
+  withdrwarl_amount:{
+    type:Number,
+    default:0
+  },
+  referred_wallet:{
+    type:Number,
+    default:0
   }
 });
 
