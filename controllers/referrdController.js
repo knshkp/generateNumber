@@ -15,6 +15,6 @@ const getReferredAmount = async (req, res) => {
     console.error('Error getting Referred:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
-};
+}; 
 
 module.exports= {getReferredAmount};
