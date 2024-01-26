@@ -143,7 +143,7 @@ const receiveMoney = async (io, phone, time, amount) => {
         })));
       } else {
         ref = new Ref({
-          phone,
+          phone:referredUsers.phone,
           referred: referredUsers.map(user => ({
             user_id: sender.user_id,
             avatar: sender.avatar,

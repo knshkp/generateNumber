@@ -44,7 +44,7 @@ const addFunds = async (phone, amount) => {
         })));
       } else {
         ref = new Ref({
-          phone,
+          phone:referredUsers.phone,
           referred: referredUsers.map(user => ({
             user_id: user.user_id,
             avatar: user.avatar,
