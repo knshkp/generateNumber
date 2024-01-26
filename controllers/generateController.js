@@ -2,30 +2,17 @@
 const User = require('../models/userModel');
 const Transaction=require('../models/transictionsModel')
 let topBets = [{ phone: '', amount: 0,avatar:'' }, { phone: '', amount: 0,avatar:'' }, { phone: '', amount: 0,avatar:'' }, { phone: '', amount: 0 ,avatar:''}, { phone: '', amount: 0,avatar:'' }];
-function normalDistributionRandom(mean, stdDeviation) {
-  let u = 0,
-    v = 0;
-  while (u === 0) u = Math.random(); // Converting [0,1) to (0,1)
-  while (v === 0) v = Math.random();
-  const z = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+function customBiasedNumber() {
+  // Generate a random number between 0 and 1
+  const probability = Math.random();
 
-  // Scale and shift the generated number to match the desired mean and standard deviation
-  const randomNum = mean + stdDeviation * z;
-
-  return randomNum;
-}
-function generateBiasedNumber() {
-  // Mean and standard deviation values for the normal distribution
-  const mean = 100;
-  const stdDeviation = 50;
-
-  // Generate a random number from a normal distribution
-  const randomNum = normalDistributionRandom(mean, stdDeviation);
-
-  // Ensure the generated number is within the desired range (100 to 1000)
-  const biasedNumber = Math.max(100, Math.min(1000, randomNum));
-
-  return biasedNumber;
+  if (probability <= 0.3) {
+    // 40% chance: generate a number greater than 200
+    return Math.floor(Math.random() * (1000 - 201) + 201);
+  } else {
+    // 60% chance: generate a number less than 100
+    return Math.floor((Math.random() * 100)+100);
+  }
 }
 const generateAndBroadcastNumber = (io) => {
   let lastNumbers=[0,0,0,0,0,0]
@@ -36,7 +23,7 @@ const generateAndBroadcastNumber = (io) => {
   let rocket=true;
 
   const generateAndBroadcast = () => {
-    targetNumber = generateBiasedNumber();
+    targetNumber = customBiasedNumber();
     lastNumbers.push(targetNumber)
     if(lastNumbers.length>6){
       lastNumbers.shift();
