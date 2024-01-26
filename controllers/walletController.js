@@ -42,8 +42,9 @@ const getWalletTrans = async (req, res) => {
     // Extract wallet information and transactions
     const walletData = wallets.map((wallet) => ({
       phone: wallet.phone,
-      walletTrans: wallet.walletTrans
+      walletTrans: wallet.walletTrans.filter(transaction => transaction.amount > 0)
     }));
+    
 
     // Send wallet data as a response
     res.status(200).json({ wallets: walletData });
