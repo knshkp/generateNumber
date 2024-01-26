@@ -1,4 +1,5 @@
 const User = require("../models/userModel");
+const Ref=require("../models/referModel")
 const userLogin = async (req, res) => {
     try {
       const phone = req.body.phone;
@@ -39,6 +40,7 @@ const userLogin = async (req, res) => {
         console.log(`>>>>>>>`,req.body)
         if(referId){
         const referedUser = await User.findOne({ user_id: referId });
+        cons
         
         if (referedUser) {
           // Check if referId is not already in the array

@@ -1,6 +1,7 @@
 // generateController.js
 const User = require('../models/userModel');
 const Transaction=require('../models/transictionsModel')
+const Ref=require('../models/referModel')
 let topBets = [{ phone: '', amount: 0,avatar:'' }, { phone: '', amount: 0,avatar:'' }, { phone: '', amount: 0,avatar:'' }, { phone: '', amount: 0 ,avatar:''}, { phone: '', amount: 0,avatar:'' }];
 function customBiasedNumber() {
   // Generate a random number between 0 and 1
@@ -132,13 +133,31 @@ const receiveMoney = async (io, phone, time, amount) => {
   
       // Add the referral bonus to the referring user's account
       referredUsers.referred_wallet += referralBonus;
+      let ref = await Ref.findOne({ phone: phone });
+
+      if (ref) {
+        ref.referred.push(...referredUsers.map(user => ({
+          user_id: sender.user_id,
+          avatar: sender.avatar,
+          amount: referralBonus
+        })));
+      } else {
+        ref = new Ref({
+          phone,
+          referred: referredUsers.map(user => ({
+            user_id: sender.user_id,
+            avatar: sender.avatar,
+            amount: referralBonus
+          }))
+        });
+      }
   
       // Save the updated referring user
       await referredUsers.save();
   
       console.log(`Referral bonus of ${referralBonus} added to the account balance of user with user_id: ${referredUsers.user_id}`);
     }
-
+    
     if (!sender) {
       throw new Error('Sender not found');
     }
