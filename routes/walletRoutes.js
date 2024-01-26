@@ -13,4 +13,5 @@ user_route.get('/getTrans',walletController.getWalletTrans)
 user_route.post('/updateStatus', walletController.updateStatus);
 user_route.get('/getTransiction',walletController.getWalletTransinction)
 user_route.get('/getReferred',referController.getReferredAmount)
+user_route.get('/convert',walletController.convertAmount)
 module.exports = user_route;

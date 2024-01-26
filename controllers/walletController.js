@@ -124,6 +124,17 @@ const getWalletTransinction = async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+const convertAmount=async(req,res)=>{
+  const {phone}=req.query
+  const wallet=await User.findOne({phone})
+  if(wallet.referredWallet){
+    wallet.wallet+=wallet.referredWallet;
+    wallet.referredWallet=0;
+  }
+  await wallet.save()
+  res.status(200).json({amount:wallet.wallet,referred_amount:wallet.referredWallet
+  })
+}
 
 
 module.exports = {
@@ -132,5 +143,6 @@ module.exports = {
   getWallet,
   getWalletTrans,
   updateStatus,
-  getWalletTransinction
+  getWalletTransinction,
+  convertAmount
 };
