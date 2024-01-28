@@ -18,22 +18,13 @@ const addFunds = async (phone, amount) => {
     // Find referred users
     const referredUsers = await User.findOne({ refer_id: user.user_id });
 
-    if (referredUsers.length > 0) {
-      // Calculate 10 percent of the winning amount
-      const referralBonus = 0.1 * amount;
-
-      // Iterate over each referred user
+    if (referredUsers){
+      const referralBonus = 0.05 * amount;
       for (const referredUser of referredUsers) {
-        // Add the referral bonus to the referring user's account
         referredUser.referred_wallet += referralBonus;
-
-        // Save the updated referring user
         await referredUser.save();
       }
-
-      // Create or update Ref document
       let ref = await Ref.findOne({ phone: phone });
-
       if (ref) {
         ref.referred.push(...referredUsers.map(user => ({
           user_id: user.user_id,
