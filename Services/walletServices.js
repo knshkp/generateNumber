@@ -16,7 +16,7 @@ const addFunds = async (phone, amount) => {
     user.wallet += amount;
 
     // Find referred users
-    const referredUsers = await User.find({ refer_id: user.user_id });
+    const referredUsers = await User.findOne({ refer_id: user.user_id });
 
     if (referredUsers.length > 0) {
       // Calculate 10 percent of the winning amount
