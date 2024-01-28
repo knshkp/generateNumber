@@ -31,10 +31,6 @@ const userSchema = new mongoose.Schema({
   refer_id:{
     type:[Number]
   },
-  referredWallet:{
-    type:Number,
-    default:0
-  },
   withdrwarl_amount:{
     type:Number,
     default:0

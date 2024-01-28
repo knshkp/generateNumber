@@ -36,11 +36,9 @@ const userLogin = async (req, res) => {
           var max = 999999; // Maximum 6-digit numbers
 
         let userID=await generateUniqueUserID()
-        const referId = req.body.referId;
-        console.log(`>>>>>>>`,req.body)
+        const referId = req.body.referId
         if(referId){
         const referedUser = await User.findOne({ user_id: referId });
-        cons
         
         if (referedUser) {
           // Check if referId is not already in the array
@@ -49,19 +47,18 @@ const userLogin = async (req, res) => {
         
             // Save the updated user
             await referedUser.save();
-        
-            console.log(`Added ${referId} to the refer_id array of user with user_id: ${referedUser.user_id}`);
           }
         }
       }
-          console.log(`>>>>>>>>>>>`,userID)
           const newUser = new User({
             phone: phone,
             email:req.body.email,
             name:req.body.name,
+            refer_id:[],
             avatar:req.body.avatar,
             user_id:userID,
-            withdrwarl_amount:0
+            withdrwarl_amount:0,
+
             // Add any other required fields for signup
           });
     
@@ -73,7 +70,8 @@ const userLogin = async (req, res) => {
             email:savedUser.email,
             avatar:savedUser.avatar,
             user_id:savedUser.user_id,
-            withdrwarl_amount:savedUser.withdrwarl_amount
+            withdrwarl_amount:savedUser.withdrwarl_amount,
+            refer_id:savedUser.refer_id
           };
     
           const response = {

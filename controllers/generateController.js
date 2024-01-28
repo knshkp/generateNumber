@@ -72,7 +72,6 @@ const generateAndBroadcastNumber = (io) => {
 
 
 const sendMoney = async (io, phone, time, amount,avatar) => {
-  console.log(`>>>>>>>>>>${phone}>>>>>>${amount}`);
   try {
     let userTransaction = await Transaction.findOne({ phone });
 
@@ -126,7 +125,6 @@ const receiveMoney = async (io, phone, time, amount) => {
       Transaction.findOne({ phone })
     ]);
     const referredUsers = await User.findOne({ refer_id: { $in: sender.user_id } });
-    console.log(`>>>>>>>>>rederred>>>>${referredUsers}`)
     if (referredUsers) {
       // Calculate 10 percent of the winning amount
       const referralBonus = 0.1 * amount*time;
@@ -154,8 +152,6 @@ const receiveMoney = async (io, phone, time, amount) => {
   
       // Save the updated referring user
       await referredUsers.save();
-  
-      console.log(`Referral bonus of ${referralBonus} added to the account balance of user with user_id: ${referredUsers.user_id}`);
     }
     
     if (!sender) {

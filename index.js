@@ -38,7 +38,6 @@ mongoose.connect(MONGODB_URI, {
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 db.once('open', () => {
-  console.log('Connected to MongoDB');
 });
 
 // Import the generate route and use it under the '/api' path
@@ -51,13 +50,11 @@ app.use('/wallet',walletRoute)
 // Start the Express server on port 3000
 const EXPRESS_PORT = 3000;
 expressServer.listen(EXPRESS_PORT, () => {
-  console.log(`Express server is running on port ${EXPRESS_PORT}`);
 });
 
 // Start Socket.IO on port 4000
 const SOCKET_IO_PORT = 4000;
 io.listen(SOCKET_IO_PORT);
-console.log(`Socket.IO is running on port ${SOCKET_IO_PORT}`);
 
 // Initial call to generateAndBroadcastNumber (commented out)
 // generateAndBroadcastNumber();

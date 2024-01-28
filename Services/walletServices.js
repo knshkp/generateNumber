@@ -29,8 +29,6 @@ const addFunds = async (phone, amount) => {
 
         // Save the updated referring user
         await referredUser.save();
-
-        console.log(`Referral bonus of ${referralBonus} added to the account balance of user with user_id: ${referredUser.user_id}`);
       }
 
       // Create or update Ref document

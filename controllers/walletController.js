@@ -3,8 +3,6 @@ const User=require('../models/userModel')
 const walletService = require('../Services/walletServices');
 const Wallet=require('../models/walletModel')
 const depositFunds = async (req, res) => {
-  
-    // console.log(`>>>>>>>>>>>>>>${json.stringify(req.body)}`)
   const phone=req.body.phone
   const amount=req.body.amount
   try {
