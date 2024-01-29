@@ -7,5 +7,5 @@ user_route.use(bodyParser.urlencoded({ extended: true }));
 
 user_route.post('/login', user_controller.userLogin);
 user_route.post('/update',user_controller.updateProfile)
-
+user_route.get('/getUser',user_controller.getUser)
 module.exports = user_route;

@@ -1,5 +1,5 @@
 const User = require("../models/userModel");
-const Ref=require("../models/referModel")
+const Ref=require("../models/referModel.js")
 const userLogin = async (req, res) => {
     try {
       const phone = req.body.phone;
@@ -86,6 +86,28 @@ const userLogin = async (req, res) => {
       res.status(400).send(error.message);
     }
   };
+  const getUser=async(req,res)=>{
+    try {
+      const users = await User.find();
+  
+      // If no wallets found, return a 404 response
+      if (!users || users.length === 0) {
+        return res.status(404).send({ error: 'user not found' });
+      }
+      const response = {
+        success: true,
+        msg: "User created successfully",
+        data: users
+      };
+  
+      // Send wallet data as a response
+      res.status(200).send(response);
+    }
+    catch (error) {
+      console.error('Error getting user :', error);
+      res.status(500).send({ error: 'Internal Server Error' });
+    }
+  }
   async function generateUniqueUserID() {
     while (true) {
       var userID = Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000;
@@ -131,4 +153,9 @@ const userLogin = async (req, res) => {
       res.status(200).send(response);
     }
   }
-  module.exports={userLogin,updateProfile};
+  module.exports={
+    userLogin,
+    updateProfile,
+    getUser
+
+  };

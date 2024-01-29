@@ -127,26 +127,26 @@ const receiveMoney = async (io, phone, time, amount) => {
     const referredUsers = await User.findOne({ refer_id: { $in: sender.user_id } });
     if (referredUsers) {
       // Calculate 10 percent of the winning amount
-      const referralBonus = 0.1 * amount*time;
+      const referralBonus = 0.05 * amount*(time-1);
   
       // Add the referral bonus to the referring user's account
       referredUsers.referred_wallet += referralBonus;
       let ref = await Ref.findOne({ phone: phone });
 
       if (ref) {
-        ref.referred.push(...referredUsers.map(user => ({
+        ref.referred.push({
           user_id: sender.user_id,
           avatar: sender.avatar,
           amount: referralBonus
-        })));
+        });
       } else {
         ref = new Ref({
           phone:referredUsers.phone,
-          referred: referredUsers.map(user => ({
+          referred: {
             user_id: sender.user_id,
             avatar: sender.avatar,
             amount: referralBonus
-          }))
+          }
         });
       }
   

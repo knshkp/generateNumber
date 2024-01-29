@@ -16,14 +16,12 @@ const addFunds = async (phone, amount) => {
     user.wallet += amount;
 
     // Find referred users
-    const referredUsers = await User.findOne({ refer_id: user.user_id });
+    const referredUsers = await User.findOne({ refer_id: { $in: user.user_id } });
 
     if (referredUsers){
       const referralBonus = 0.05 * amount;
-      for (const referredUser of referredUsers) {
-        referredUser.referred_wallet += referralBonus;
-        await referredUser.save();
-      }
+      referredUsers.referred_wallet += referralBonus;
+      await referredUsers.save();
       let ref = await Ref.findOne({ phone: phone });
       if (ref) {
         ref.referred.push(...referredUsers.map(user => ({
@@ -31,20 +29,20 @@ const addFunds = async (phone, amount) => {
           avatar: user.avatar,
           amount: referralBonus
         })));
-      } else {
+      } 
+      else {
         ref = new Ref({
           phone:referredUsers.phone,
-          referred: referredUsers.map(user => ({
+          referred: {
             user_id: user.user_id,
             avatar: user.avatar,
             amount: referralBonus
-          }))
+          }
         });
       }
 
-      await ref.save();
+    await ref.save();
     }
-
     // Save the updated user
     await user.save();
 

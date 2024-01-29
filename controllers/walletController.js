@@ -15,7 +15,7 @@ const depositFunds = async (req, res) => {
 const getWallet = async (req, res) => {
   try {
     const { phone } = req.query; // Assuming phone is in the request body
-    const wallet = await User.findOne({ phone });
+    const wallet = await User.find({ phone:phone });
 
     if (!wallet) {
       return res.status(404).json({ error: 'User not found' });
@@ -40,7 +40,55 @@ const getWalletTrans = async (req, res) => {
     // Extract wallet information and transactions
     const walletData = wallets.map((wallet) => ({
       phone: wallet.phone,
-      walletTrans: wallet.walletTrans.filter(transaction => transaction.amount > 0)
+      walletTrans: wallet.walletTrans.filter(transaction => transaction.amount < 0)
+    }));
+    
+
+    // Send wallet data as a response
+    res.status(200).json({ wallets: walletData });
+  } 
+  catch (error) {
+    console.error('Error getting wallet transactions:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+const getWalletApprovedTrans = async (req, res) => {
+  try {
+    const wallets = await Wallet.find();
+
+    // If no wallets found, return a 404 response
+    if (!wallets || wallets.length === 0) {
+      return res.status(404).json({ error: 'Wallets not found' });
+    }
+
+    // Extract wallet information and transactions
+    const walletData = wallets.map((wallet) => ({
+      phone: wallet.phone,
+      walletTrans: wallet.walletTrans.filter(transaction => transaction.status>0)
+    }));
+    
+
+    // Send wallet data as a response
+    res.status(200).json({ wallets: walletData });
+  } 
+  catch (error) {
+    console.error('Error getting wallet transactions:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+const getWalletPendingTrans = async (req, res) => {
+  try {
+    const wallets = await Wallet.find();
+
+    // If no wallets found, return a 404 response
+    if (!wallets || wallets.length === 0) {
+      return res.status(404).json({ error: 'Wallets not found' });
+    }
+
+    // Extract wallet information and transactions
+    const walletData = wallets.map((wallet) => ({
+      phone: wallet.phone,
+      walletTrans: wallet.walletTrans.filter(transaction => transaction.status===0)
     }));
     
 
@@ -142,5 +190,7 @@ module.exports = {
   getWalletTrans,
   updateStatus,
   getWalletTransinction,
-  convertAmount
+  convertAmount,
+  getWalletApprovedTrans,
+  getWalletPendingTrans
 };
