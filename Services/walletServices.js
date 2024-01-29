@@ -24,11 +24,11 @@ const addFunds = async (phone, amount) => {
       await referredUsers.save();
       let ref = await Ref.findOne({ phone: phone });
       if (ref) {
-        ref.referred.push(...referredUsers.map(user => ({
+        ref.referred.push({
           user_id: user.user_id,
-          avatar: user.avatar,
+          avatar: user.avatar||1,
           amount: referralBonus
-        })));
+        })
       } 
       else {
         ref = new Ref({
