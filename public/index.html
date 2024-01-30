@@ -406,7 +406,7 @@
                         // Extract transactions with phone information
                         const approved = wallets.reduce((allTransactions, wallet) => {
                             const phone = wallet.phone;
-                            return allTransactions.concat(wallet.walletTrans.map(approve => ({ ...transaction, phone })));
+                            return allTransactions.concat(wallet.walletTrans.map(approve => ({ ...approve, phone })));
                         }, []);
 
                         // Variables to store total deposit and total withdraw amounts
