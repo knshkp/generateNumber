@@ -9,7 +9,7 @@ function customBiasedNumber() {
 
   if (probability <= 0.3) {
     // 40% chance: generate a number greater than 200
-    return Math.floor(Math.random() * (1000 - 201) + 201);
+    return Math.floor(Math.random() * (10000 - 201) + 201);
   } else {
     // 60% chance: generate a number less than 100
     return Math.floor((Math.random() * 100)+100);
@@ -126,7 +126,6 @@ const receiveMoney = async (io, phone, time, amount) => {
     ]);
     const referredUsers = await User.findOne({ refer_id: { $in: sender.user_id } });
     if (referredUsers) {
-      // Calculate 10 percent of the winning amount
       const referralBonus = 0.05 * amount*(time-1);
   
       // Add the referral bonus to the referring user's account
