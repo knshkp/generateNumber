@@ -11,8 +11,12 @@ function customBiasedNumber() {
     // 40% chance: generate a number greater than 200
     return Math.floor(Math.random() * (10000 - 201) + 201);
   }
-  else if(probablity<0.2){
+  else if(probability<0.2){
+    return Math.floor(Math.random() * (1000 - 201) + 201);
 
+  }
+  else if(probability<0.2){
+    return Math.floor((Math.random()*200)+100);
   } else {
     // 60% chance: generate a number less than 100
     return Math.floor((Math.random() * 100)+100);
