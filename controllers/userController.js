@@ -160,10 +160,16 @@ const userLogin = async (req, res) => {
     updateApp.save();
 
   }
+  const getVersion=async(req,res)=>{
+    const latestEntry = await App.find().sort({ createdAt: -1 }).limit(1).toArray();
+    res.status(200).json({ latestEntry });
+
+  }
   module.exports={
     userLogin,
     updateProfile,
     getUser,
-    updateApp
+    updateApp,
+    getVersion
 
   };
