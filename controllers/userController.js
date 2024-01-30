@@ -157,15 +157,21 @@ const userLogin = async (req, res) => {
   const updateApp=async(req,res)=>{
     const version=req.body.version;
     const link=req.body.link;
-    const updateApp=new App({version:version})
+    const updateApp=new App({version:version,link:link})
     updateApp.save();
+    res.status(200).send({success:true})
 
   }
-  const getVersion=async(req,res)=>{
-    const latestEntry = await App.find().sort({ createdAt: -1 }).limit(1).toArray();
-    res.status(200).json({ latestEntry });
-
-  }
+  const getVersion = async (req, res) => {
+    try {
+      const latestEntry = await App.findOne().sort({ createdAt: -1 }).exec();
+      res.status(200).send({ latestEntry });
+    } catch (error) {
+      console.error(error);
+      res.status(500).send({ error: 'Internal Server Error' });
+    }
+  };
+  
   module.exports={
     userLogin,
     updateProfile,

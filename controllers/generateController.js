@@ -7,9 +7,12 @@ function customBiasedNumber() {
   // Generate a random number between 0 and 1
   const probability = Math.random();
 
-  if (probability <= 0.3) {
+  if (probability <= 0.1) {
     // 40% chance: generate a number greater than 200
     return Math.floor(Math.random() * (10000 - 201) + 201);
+  }
+  else if(probablity<0.2){
+
   } else {
     // 60% chance: generate a number less than 100
     return Math.floor((Math.random() * 100)+100);
