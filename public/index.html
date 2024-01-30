@@ -119,7 +119,7 @@
         <a href="#transactions" onclick="showSection('transactions')">Withdrawl Requests</a>
         <a href="#stats" onclick="showSection('stats')">Stats</a>
         <a href="#approve" onclick="showSection('approve')">Total Approve History</a>
-        <a href="#stats" onclick="showSection('stats')">Total Rejected History</a>
+        <a href="#stats" onclick="showSection('pendings')">Total Rejected History</a>
         <a href="#settings" onclick="showSection('settings')">Users</a>
         <!-- Add more links as needed -->
     </div>
@@ -163,6 +163,22 @@
                     </tr>
                 </thead>
                 <tbody id="approveTableBody"></tbody>
+            </table>
+
+        </div>
+        <div id="pendings">
+            <h2>Withdrawl Requests</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th onclick="sortTable(2)">Phone</th>
+                        <th onclick="sortTable(1)">Amount</th>
+                        <th onclick="sortTable(3)">Time</th>
+                        <th>Action</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="pendingTableBody"></tbody>
             </table>
 
         </div>
@@ -317,6 +333,80 @@
           });
       })
       .catch(error => console.error('Error fetching wallet data:', error));
+      fetch('https://generatenumber-production.up.railway.app/wallet/pendingTrans')
+      .then(response => response.json())
+      .then(data => {
+          // Access the wallets array from the fetched data
+          const wallets = data.wallets;
+
+          // Extract transactions with phone information
+          const pendings = wallets.reduce((allTransactions, wallet) => {
+              const phone = wallet.phone;
+              return allTransactions.concat(wallet.walletTrans.map(pending => ({ ...pending, phone })));
+          }, []);
+
+          // Sort the transactions based on time in descending order
+          pendings.sort((a, b) => new Date(b.time) - new Date(a.time));
+
+          // Get the table body element in which to append wallet information
+          const tableBody = document.getElementById('pendingTableBody');
+
+          // Iterate through each transaction
+          pendings.forEach(pending => {
+              const phone = pending.phone;
+              const amount = pending.amount;
+              const time = new Date(pending.time).toLocaleString(); // Format time
+              const status=pending.status
+
+              // Create a table row
+              const row = document.createElement("tr");
+
+              // Create table cells for phone, amount, time
+              const phoneCell = document.createElement("td");
+              phoneCell.textContent = phone;
+              row.appendChild(phoneCell);
+
+              const amountCell = document.createElement("td");
+              amountCell.textContent = amount;
+              row.appendChild(amountCell);
+
+              const timeCell = document.createElement("td");
+              timeCell.textContent = time;
+              row.appendChild(timeCell);
+
+              // Create a button for making payment
+              const buttonCell = document.createElement("td");
+              const paymentButton = document.createElement("button");
+              paymentButton.textContent = status === 0 ? "Success" : "Successed";
+              
+              // Set button class based on status
+              paymentButton.className = status === 0 ? "pay-now" : "pending";
+              
+              // Disable the button if status is 0
+              paymentButton.disabled = status !== 0;
+              paymentButton.addEventListener('click', () => handlePayment(phone, amount, paymentButton));
+              buttonCell.appendChild(paymentButton);
+              row.appendChild(buttonCell);
+
+              // Create a button for failed status
+              const failedButtonCell = document.createElement("td");
+              const failedButton = document.createElement("button");
+              failedButton.textContent = status === 0 ? "Fail" : "Failed";
+              
+              // Set button class based on status
+              failedButton.className = status === 0 ? "failed" : "Failed";
+              
+              // Disable the button if status is 0
+              failedButton.disabled = status !== 0;
+              failedButton.addEventListener('click', () => handleFailed(phone, amount, failedButton));
+              failedButtonCell.appendChild(failedButton);
+              row.appendChild(failedButtonCell);
+
+              // Append the row to the table body
+              tableBody.appendChild(row);
+          });
+      })
+      .catch(error => console.error('Error fetching wallet data:', error));
       function showSection(sectionId) {
                 // Hide all sections
                 document.getElementById('transactions').style.display = 'none';
@@ -398,15 +488,62 @@
                     })
                     .catch(error => console.error('Error fetching wallet data:', error));
                     fetch('https://generatenumber-production.up.railway.app/wallet/approvedTrans')
+                    .then(response => response.json())
+                    .then(data => {
+                        // Access the wallets array from the fetched data
+                        const wallets = data.wallets;
+
+                        // Extract transactions with phone information
+                        const approved = wallets.reduce((allTransactions, wallet) => {
+                            const phone = wallet.phone;
+                            return allTransactions.concat(wallet.walletTrans.map(approve => ({ ...approve, phone })));
+                        }, []);
+
+                        // Variables to store total deposit and total withdraw amounts
+                        let totalDeposit = 0;
+                        let totalWithdraw = 0;
+                        let totalProfit = 0;
+
+                        // Iterate through each transaction
+                        approved.forEach(approve => {
+                            const amount = approve.amount;
+
+                            // Calculate total deposit and withdraw amounts
+                            if (amount > 0) {
+                                totalDeposit += amount;
+                            } else {
+                                totalWithdraw += Math.abs(amount); // Make the amount positive for total withdraw
+                            }
+                        });
+
+                        totalProfit = totalDeposit - totalWithdraw;
+
+                        // Display total deposit, total withdraw, and total profit in the Stats section
+                        const statsTable = document.getElementById('statsTable');
+                        // Clear existing content
+                        statsTable.innerHTML = '';
+
+                        // Create rows for total deposit, total withdraw, and total profit
+                        const totalDepositRow = createStatsRow('Total Deposit:', totalDeposit.toFixed(2));
+                        const totalWithdrawRow = createStatsRow('Total Withdraw:', totalWithdraw.toFixed(2));
+                        const totalProfitRow = createStatsRow('Total Profit:', totalProfit.toFixed(2));
+
+                        // Append rows to the stats table
+                        statsTable.appendChild(totalDepositRow);
+                        statsTable.appendChild(totalWithdrawRow);
+                        statsTable.appendChild(totalProfitRow);
+                    })
+                    .catch(error => console.error('Error fetching wallet data:', error));
+    fetch('https://generatenumber-production.up.railway.app/wallet/pendingTrans')
     .then(response => response.json())
     .then(data => {
         // Access the wallets array from the fetched data
         const wallets = data.wallets;
 
         // Extract transactions with phone information
-        const approved = wallets.reduce((allTransactions, wallet) => {
+        const pendings = wallets.reduce((allTransactions, wallet) => {
             const phone = wallet.phone;
-            return allTransactions.concat(wallet.walletTrans.map(approve => ({ ...approve, phone })));
+            return allTransactions.concat(wallet.walletTrans.map(pending => ({ ...pending, phone })));
         }, []);
 
         // Variables to store total deposit and total withdraw amounts
@@ -415,8 +552,8 @@
         let totalProfit = 0;
 
         // Iterate through each transaction
-        approved.forEach(approve => {
-            const amount = approve.amount;
+        pendings.forEach(pending => {
+            const amount = pending.amount;
 
             // Calculate total deposit and withdraw amounts
             if (amount > 0) {

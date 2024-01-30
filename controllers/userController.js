@@ -97,7 +97,6 @@ const userLogin = async (req, res) => {
       }
       const response = {
         success: true,
-        msg: "User created successfully",
         data: users
       };
   
