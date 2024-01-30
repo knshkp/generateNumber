@@ -8,6 +8,10 @@ const appSchema = new mongoose.Schema({
     createdAt: {
         type: Date,
         default: Date.now
+    },
+    link:{
+        type:String,
+        require:true
     }
 });
 

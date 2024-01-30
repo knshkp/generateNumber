@@ -156,6 +156,7 @@ const userLogin = async (req, res) => {
   }
   const updateApp=async(req,res)=>{
     const version=req.body.version;
+    const link=req.body.link;
     const updateApp=new App({version:version})
     updateApp.save();
 
