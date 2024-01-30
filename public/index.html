@@ -250,23 +250,23 @@
           const wallets = data.wallets;
 
           // Extract transactions with phone information
-          const approve = wallets.reduce((allTransactions, wallet) => {
+          const approved = wallets.reduce((allTransactions, wallet) => {
               const phone = wallet.phone;
-              return allTransactions.concat(wallet.walletTrans.map(appove => ({ ...approve, phone })));
+              return allTransactions.concat(wallet.walletTrans.map(approve => ({ ...approve, phone })));
           }, []);
 
           // Sort the transactions based on time in descending order
-          approve.sort((a, b) => new Date(b.time) - new Date(a.time));
+          approved.sort((a, b) => new Date(b.time) - new Date(a.time));
 
           // Get the table body element in which to append wallet information
           const tableBody = document.getElementById('approveTableBody');
 
           // Iterate through each transaction
-          approve.forEach(transaction => {
-              const phone = transaction.phone;
-              const amount = transaction.amount;
-              const time = new Date(transaction.time).toLocaleString(); // Format time
-              const status=transaction.status
+          approved.forEach(approve => {
+              const phone = approve.phone;
+              const amount = approve.amount;
+              const time = new Date(approve.time).toLocaleString(); // Format time
+              const status=approve.status
 
               // Create a table row
               const row = document.createElement("tr");
