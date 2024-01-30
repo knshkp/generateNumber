@@ -398,69 +398,65 @@
                     })
                     .catch(error => console.error('Error fetching wallet data:', error));
                     fetch('https://generatenumber-production.up.railway.app/wallet/approveTrans')
-                    .then(response => response.json())
-                    .then(data => {
-                        // Access the wallets array from the fetched data
-                        const wallets = data.wallets;
+    .then(response => response.json())
+    .then(data => {
+        // Access the wallets array from the fetched data
+        const wallets = data.wallets;
 
-                        // Extract transactions with phone information
-                        const approved = wallets.reduce((allTransactions, wallet) => {
-                            const phone = wallet.phone;
-                            return allTransactions.concat(wallet.walletTrans.map(approve => ({ ...approve, phone })));
-                        }, []);
+        // Extract transactions with phone information
+        const approved = wallets.reduce((allTransactions, wallet) => {
+            const phone = wallet.phone;
+            return allTransactions.concat(wallet.walletTrans.map(approve => ({ ...approve, phone })));
+        }, []);
 
-                        // Variables to store total deposit and total withdraw amounts
-                        let totalDeposit = 0;
-                        let totalWithdraw = 0;
-                        let totalProfit=0;
-                        // Iterate through each transaction
-                        apprived.forEach(approve => {
-                            const amount = approve.amount;
+        // Variables to store total deposit and total withdraw amounts
+        let totalDeposit = 0;
+        let totalWithdraw = 0;
+        let totalProfit = 0;
 
-                            // Calculate total deposit and withdraw amounts
-                            if (amount > 0) {
-                                totalDeposit += amount;
-                            } else {
-                                totalWithdraw += Math.abs(amount); // Make the amount positive for total withdraw
-                            }
-                        });
-                        totalProfit=(totalDeposit-totalWithdraw);
+        // Iterate through each transaction
+        approved.forEach(approve => {
+            const amount = approve.amount;
 
-                        // Display total deposit and total withdraw in the Stats section
-                        const statsTable = document.getElementById('statsTable');
-                        // Clear existing content
-                        statsTable.innerHTML = '';
+            // Calculate total deposit and withdraw amounts
+            if (amount > 0) {
+                totalDeposit += amount;
+            } else {
+                totalWithdraw += Math.abs(amount); // Make the amount positive for total withdraw
+            }
+        });
 
-                        // Create rows for total deposit and total withdraw
-                        const totalDepositRow = document.createElement('tr');
-                        const totalDepositCellLabel = document.createElement('td');
-                        totalDepositCellLabel.textContent = 'Total Deposit:';
-                        const totalDepositCellAmount = document.createElement('td');
-                        totalDepositCellAmount.textContent = totalDeposit.toFixed(2); // Format as needed
-                        totalDepositRow.appendChild(totalDepositCellLabel);
-                        totalDepositRow.appendChild(totalDepositCellAmount);
+        totalProfit = totalDeposit - totalWithdraw;
 
-                        const totalWithdrawRow = document.createElement('tr');
-                        const totalWithdrawCellLabel = document.createElement('td');
-                        totalWithdrawCellLabel.textContent = 'Total Withdraw:';
-                        const totalWithdrawCellAmount = document.createElement('td');
-                        totalWithdrawCellAmount.textContent = totalWithdraw.toFixed(2); // Format as needed
-                        totalWithdrawRow.appendChild(totalWithdrawCellLabel);
-                        totalWithdrawRow.appendChild(totalWithdrawCellAmount);
-                        const totalProfitRow = document.createElement('tr');
-                        const totalProfitCellLabel = document.createElement('td');
-                        totalProfitCellLabel.textContent = 'Total Profit:';
-                        const totalProfitCellAmount = document.createElement('td');
-                        totalProfitCellAmount.textContent = totalWithdraw.toFixed(2); // Format as needed
-                        totalProfitRow.appendChild(totalProfitCellLabel);
-                        totalProfitRow.appendChild(totalProfitCellAmount);
+        // Display total deposit, total withdraw, and total profit in the Stats section
+        const statsTable = document.getElementById('statsTable');
+        // Clear existing content
+        statsTable.innerHTML = '';
 
-                        // Append rows to the stats table
-                        statsTable.appendChild(totalDepositRow);
-                        statsTable.appendChild(totalWithdrawRow);
-                        statsTable.appendChild(totalProfitRow);
-                    })
-                    .catch(error => console.error('Error fetching wallet data:', error));
+        // Create rows for total deposit, total withdraw, and total profit
+        const totalDepositRow = createStatsRow('Total Deposit:', totalDeposit.toFixed(2));
+        const totalWithdrawRow = createStatsRow('Total Withdraw:', totalWithdraw.toFixed(2));
+        const totalProfitRow = createStatsRow('Total Profit:', totalProfit.toFixed(2));
+
+        // Append rows to the stats table
+        statsTable.appendChild(totalDepositRow);
+        statsTable.appendChild(totalWithdrawRow);
+        statsTable.appendChild(totalProfitRow);
+    })
+    .catch(error => console.error('Error fetching wallet data:', error));
+
+// Helper function to create a row for the stats table
+
+            }
+            function createStatsRow(label, amount) {
+                const row = document.createElement('tr');
+                const cellLabel = document.createElement('td');
+                cellLabel.textContent = label;
+                const cellAmount = document.createElement('td');
+                cellAmount.textContent = amount;
+                row.appendChild(cellLabel);
+                row.appendChild(cellAmount);
+                return row;
             }
             function toggleSidebar() {
             const sidenav = document.querySelector('.sidenav');
