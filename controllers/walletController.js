@@ -14,18 +14,20 @@ const depositFunds = async (req, res) => {
 };
 const getWallet = async (req, res) => {
   try {
+    console.log(req.query.phone)
     const { phone } = req.query; // Assuming phone is in the request body
     const wallet = await User.find({ phone:phone });
-
+    console.log(wallet)
     if (!wallet) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    const walletMoney = wallet.wallet;
-    res.status(200).json({ wallet:walletMoney,refer_wallet:wallet.referred_wallet });
+    const walletMoney = wallet[0].wallet;
+    console.log('>>>>>>>>>>',walletMoney)
+    res.status(200).send({ wallet:walletMoney,refer_wallet:wallet[0].referred_wallet });
   } catch (error) {
     console.error('Error getting wallet:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).send({ error: 'Internal Server Error' });
   }
 };
 const getWalletTrans = async (req, res) => {
@@ -178,7 +180,7 @@ const convertAmount=async(req,res)=>{
     wallet.referredWallet=0;
   }
   await wallet.save()
-  res.status(200).json({amount:wallet.wallet,referred_amount:wallet.referredWallet
+  res.status(200).json({amount:wallet.wallet,referred_amount:wallet.referred_wallet
   })
 }
 

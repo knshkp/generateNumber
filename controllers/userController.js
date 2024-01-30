@@ -1,5 +1,6 @@
 const User = require("../models/userModel");
-const Ref=require("../models/referModel.js")
+const Ref=require("../models/referModel.js");
+const App = require("../models/AppModel");
 const userLogin = async (req, res) => {
     try {
       const phone = req.body.phone;
@@ -153,9 +154,16 @@ const userLogin = async (req, res) => {
       res.status(200).send(response);
     }
   }
+  const updateApp=async(req,res)=>{
+    const version=req.body.version;
+    const updateApp=new App({version:version})
+    updateApp.save();
+
+  }
   module.exports={
     userLogin,
     updateProfile,
-    getUser
+    getUser,
+    updateApp
 
   };
