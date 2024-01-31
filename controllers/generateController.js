@@ -138,7 +138,7 @@ const receiveMoney = async (io, phone, time, amount) => {
       // Add the referral bonus to the referring user's account
       referredUsers.referred_wallet += referralBonus;
       let ref = await Ref.findOne({ phone: referredUsers.phone });
-
+      console.log(`>>>>>>>>>>>>>`,ref)
       if (ref) {
         ref.referred.push({
           user_id: sender.user_id,
