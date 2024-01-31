@@ -131,14 +131,29 @@ const receiveMoney = async (io, phone, time, amount) => {
       User.findOne({ phone }),
       Transaction.findOne({ phone })
     ]);
+
+    if (!sender) {
+      throw new Error('Sender not found');
+    }
+
+    // Initialize userTransaction if not found
+    let newUserTransaction = userTransaction;
+    if (!newUserTransaction) {
+      newUserTransaction = new Transaction({
+        phone,
+        transactions: []
+      });
+    }
+
     const referredUsers = await User.findOne({ refer_id: { $in: sender.user_id } });
     if (referredUsers) {
-      const referralBonus = 0.05 * amount*(time-1.00);
-  
+      const referralBonus = 0.05 * amount * (time - 1.00);
+
       // Add the referral bonus to the referring user's account
       referredUsers.referred_wallet += referralBonus;
+
       let ref = await Ref.findOne({ phone: referredUsers.phone });
-      console.log(`>>>>>>>>>>>>>`,ref)
+      console.log(`>>>>>>>>>>>>>`, ref);
       if (ref) {
         ref.referred.push({
           user_id: sender.user_id,
@@ -147,36 +162,26 @@ const receiveMoney = async (io, phone, time, amount) => {
         });
       } else {
         ref = new Ref({
-          phone:referredUsers.phone,
-          referred: {
+          phone: referredUsers.phone,
+          referred: [{
             user_id: sender.user_id,
             avatar: sender.avatar,
             amount: referralBonus
-          }
+          }]
         });
       }
-  
-      // Save the updated referring user
-      await referredUsers.save();
-    }
-    
-    if (!sender) {
-      throw new Error('Sender not found');
+
+      // Save the updated referring user and the Ref model
+      await Promise.all([referredUsers.save(), ref.save()]);
     }
 
-    if (!userTransaction) {
-      userTransaction = new Transaction({
-        phone,
-        transactions: []
-      });
-    }
-    sender.wallet+=amount*time;
-    sender.withdrwarl_amount+=amount*time;
-    await sender.save()
-    userTransaction.transactions.push({ time, amount: amount * time });
+    sender.wallet += amount * time;
+    sender.withdrawal_amount += amount * time;
+    await sender.save();
+    newUserTransaction.transactions.push({ time, amount: amount * time });
 
     // Use a batch save for better performance
-    await Promise.all([userTransaction.save(), sender.save()]);
+    await Promise.all([newUserTransaction.save(), sender.save()]);
 
     io.emit('walletUpdated', { phone, newBalance: sender.wallet, time });
 
