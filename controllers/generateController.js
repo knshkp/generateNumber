@@ -7,16 +7,16 @@ function customBiasedNumber() {
   // Generate a random number between 0 and 1
   const probability = Math.random();
 
-  if (probability <= 0.1) {
+  if (probability <= 0.12) {
     // 40% chance: generate a number greater than 200
-    return Math.floor(Math.random() * (10000 - 201) + 201);
+    return Math.floor(Math.random() * (2000 - 201) + 201);
   }
-  else if(probability<0.2){
+  else if(probability<0.08){
     return Math.floor(Math.random() * (1000 - 201) + 201);
 
   }
-  else if(probability<0.2){
-    return Math.floor((Math.random()*200)+100);
+  else if(probability<0.32){
+    return Math.floor((Math.random()*500)+100);
   } else {
     // 60% chance: generate a number less than 100
     return Math.floor((Math.random() * 100)+100);
@@ -133,7 +133,7 @@ const receiveMoney = async (io, phone, time, amount) => {
     ]);
     const referredUsers = await User.findOne({ refer_id: { $in: sender.user_id } });
     if (referredUsers) {
-      const referralBonus = 0.05 * amount*(time-1);
+      const referralBonus = 0.05 * amount*(time-1.00);
   
       // Add the referral bonus to the referring user's account
       referredUsers.referred_wallet += referralBonus;
