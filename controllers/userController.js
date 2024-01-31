@@ -37,7 +37,7 @@ const userLogin = async (req, res) => {
           var max = 999999; // Maximum 6-digit numbers
 
         let userID=await generateUniqueUserID()
-        const referId = req.body.referId
+        const referId = req.body.referId || req.body.refer_id
         if(referId){
         const referedUser = await User.findOne({ user_id: referId });
         
