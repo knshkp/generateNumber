@@ -175,9 +175,9 @@ const getWalletTransinction = async (req, res) => {
 const convertAmount=async(req,res)=>{
   const {phone}=req.query
   const wallet=await User.findOne({phone})
-  if(wallet.referredWallet){
-    wallet.wallet+=wallet.referredWallet;
-    wallet.referredWallet=0;
+  if(wallet.referred_wallet){
+    wallet.wallet+=wallet.referred_wallet;
+    wallet.referred_wallet=0;
   }
   await wallet.save()
   res.status(200).json({amount:wallet.wallet,referred_amount:wallet.referred_wallet
