@@ -24,7 +24,7 @@ const getWallet = async (req, res) => {
 
     const walletMoney = wallet[0].wallet;
     console.log('>>>>>>>>>>',walletMoney)
-    res.status(200).send({ wallet:walletMoney,refer_wallet:wallet[0].referred_wallet });
+    res.status(200).send({ wallet:walletMoney,refer_wallet:wallet[0].referred_wallet,withdrawable_balance:wallet[0]withdrwarl_amount });
   } catch (error) {
     console.error('Error getting wallet:', error);
     res.status(500).send({ error: 'Internal Server Error' });
