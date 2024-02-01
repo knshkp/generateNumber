@@ -1,6 +1,7 @@
 // walletService.js
 const User = require('../models/userModel');
 const Ref=require(`../models/referModel`);
+
 const Wallet=require('../models/walletModel');
 const addFunds = async (phone, amount) => {
   try {
