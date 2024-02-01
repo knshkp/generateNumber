@@ -269,7 +269,7 @@
           });
       })
       .catch(error => console.error('Error fetching wallet data:', error));
-      fetch('https://generatenumber-production.up.railway.app/wallet/approvedTrans')
+      fetch('https://generatenumb.onrender.com/wallet/approvedTrans')
       .then(response => response.json())
       .then(data => {
           // Access the wallets array from the fetched data
@@ -343,7 +343,7 @@
           });
       })
       .catch(error => console.error('Error fetching wallet data:', error));
-      fetch('https://generatenumber-production.up.railway.app/wallet/pendingTrans')
+      fetch('https://generatenumb.onrender.com/wallet/pendingTrans')
       .then(response => response.json())
       .then(data => {
           // Access the wallets array from the fetched data
@@ -433,7 +433,7 @@
             }
             function updateStatsTable() {
                 // Fetch wallet data from the API endpoint
-                fetch('https://generatenumber-production.up.railway.app/wallet/getTrans')
+                fetch('https://generatenumb.onrender.com/wallet/getTrans')
                     .then(response => response.json())
                     .then(data => {
                         // Access the wallets array from the fetched data
@@ -497,7 +497,7 @@
                         statsTable.appendChild(totalProfitRow);
                     })
                     .catch(error => console.error('Error fetching wallet data:', error));
-                    fetch('https://generatenumber-production.up.railway.app/wallet/approvedTrans')
+                    fetch('https://generatenumb.onrender.com/wallet/approvedTrans')
                     .then(response => response.json())
                     .then(data => {
                         // Access the wallets array from the fetched data
@@ -544,7 +544,7 @@
                         statsTable.appendChild(totalProfitRow);
                     })
                     .catch(error => console.error('Error fetching wallet data:', error));
-    fetch('https://generatenumber-production.up.railway.app/wallet/pendingTrans')
+    fetch('https://generatenumb.onrender.com/wallet/pendingTrans')
     .then(response => response.json())
     .then(data => {
         // Access the wallets array from the fetched data
