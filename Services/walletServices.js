@@ -85,7 +85,7 @@ const deductFunds = async (phone, amount,paymentId,bankId=0,ifscCode=0) => {
     }
 
     // If insufficient funds, throw an error
-    if (user.withdrwarl_amount < amount && user.wallet<amount) {
+    if (user.withdrwarl_amount <= amount && user.wallet<=amount) {
       throw new Error('Insufficient funds');
     }
 
