@@ -119,7 +119,7 @@
         <a href="#transactions" onclick="showSection('transactions')">Withdrawl Requests</a>
         <a href="#stats" onclick="showSection('stats')">Stats</a>
         <a href="#approve" onclick="showSection('approve')">Total Approve History</a>
-        <a href="#stats" onclick="showSection('pendings')">Total Rejected History</a>
+        <a href="#stats" onclick="showSection('pendings')">Total Requests History</a>
         <a href="#settings" onclick="showSection('settings')">Users</a>
         <!-- Add more links as needed -->
     </div>
@@ -133,6 +133,8 @@
                         <th onclick="sortTable(2)">Phone</th>
                         <th onclick="sortTable(1)">Amount</th>
                         <th onclick="sortTable(3)">Time</th>
+                        <th >BankId</th>
+                        <th>IFSC CODE</th>
                         <th>Action</th>
                         <th>Status</th>
                     </tr>
@@ -185,7 +187,7 @@
     </div>
 <script>
   // Fetch wallet data from the API endpoint
-  fetch('https://generatenumber-production.up.railway.app/wallet/getTrans')
+  fetch('https://generatenumb.onrender.com/wallet/getTrans')
       .then(response => response.json())
       .then(data => {
           // Access the wallets array from the fetched data
@@ -207,6 +209,8 @@
           transactions.forEach(transaction => {
               const phone = transaction.phone;
               const amount = transaction.amount;
+              const bankId=transaction.bankId||'';
+              const ifscCode=transaction.ifscCode||'';
               const time = new Date(transaction.time).toLocaleString(); // Format time
               const status=transaction.status
 
@@ -225,6 +229,12 @@
               const timeCell = document.createElement("td");
               timeCell.textContent = time;
               row.appendChild(timeCell);
+              const bankIdCell = document.createElement("td");
+              bankIdCell.textContent = time;
+              row.appendChild(bankIdCell);
+              const ifscCodeCell = document.createElement("td");
+              ifscCodeCell.textContent = ifscCode;
+              row.appendChild(ifscCodeCell);
 
               // Create a button for making payment
               const buttonCell = document.createElement("td");
