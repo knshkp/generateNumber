@@ -38,6 +38,10 @@ const userSchema = new mongoose.Schema({
   referred_wallet:{
     type:Number,
     default:0
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
   }
 });
 
