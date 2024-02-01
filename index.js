@@ -8,7 +8,7 @@ require('dotenv').config();
 const app = express();
 const expressServer = http.createServer(app);
 const io = socketIO(expressServer);
-const walletRoute=require('./routes/walletRoutes')
+const walletRoute = require('./routes/walletRoutes');
 
 // Import the generateAndBroadcastNumber and sendMoney functions
 const { generateAndBroadcastNumber, sendMoney } = require('./controllers/generateController');
@@ -18,9 +18,7 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public/index.html'));
 });
 
-const MONGODB_USERNAME = encodeURIComponent(process.env.MONGODB_USERNAME);
-const MONGODB_PASSWORD = encodeURIComponent(process.env.MONGODB_PASSWORD);
-const MONGODB_DBNAME = process.env.MONGODB_DBNAME;
+const { MONGODB_USERNAME, MONGODB_PASSWORD, MONGODB_DBNAME } = process.env;
 
 // Check if the MongoDB URI is defined
 if (!MONGODB_USERNAME || !MONGODB_PASSWORD || !MONGODB_DBNAME) {
@@ -28,17 +26,23 @@ if (!MONGODB_USERNAME || !MONGODB_PASSWORD || !MONGODB_DBNAME) {
   process.exit(1); // Exit the application if MongoDB URI is not defined
 }
 
-const MONGODB_URI = `mongodb+srv://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@cluster0.zwwed4z.mongodb.net/${MONGODB_DBNAME}?retryWrites=true&w=majority`;
+const MONGODB_URI = `mongodb+srv://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@cluster0.mongodb.net/${MONGODB_DBNAME}?retryWrites=true&w=majority`;
 
-mongoose.connect(MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+// Use async/await for MongoDB connection
+async function connectToDatabase() {
+  try {
+    await mongoose.connect(MONGODB_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log('Connected to MongoDB');
+  } catch (error) {
+    console.error('MongoDB connection error:', error);
+    process.exit(1);
+  }
+}
 
-const db = mongoose.connection;
-db.on('error', console.error.bind(console, 'MongoDB connection error:'));
-db.once('open', () => {
-});
+connectToDatabase();
 
 // Import the generate route and use it under the '/api' path
 const generateRoutes = require('./routes/generateRoutes');
@@ -46,18 +50,17 @@ app.use('/api', generateRoutes(io));
 
 const userRoutes = require('./routes/userRoute');
 app.use('/user', userRoutes);
-app.use('/wallet',walletRoute)
+app.use('/wallet', walletRoute);
+
 // Start the Express server on port 3000
-const EXPRESS_PORT = 3000;
+const EXPRESS_PORT = process.env.PORT || 3000;
 expressServer.listen(EXPRESS_PORT, () => {
+  console.log(`Express server listening on port ${EXPRESS_PORT}`);
 });
 
 // Start Socket.IO on port 4000
 const SOCKET_IO_PORT = 4000;
 io.listen(SOCKET_IO_PORT);
-
-// Initial call to generateAndBroadcastNumber (commented out)
-// generateAndBroadcastNumber();
 
 // Example: Send Money functionality
 app.post('/api/sendMoney', express.json(), async (req, res) => {
