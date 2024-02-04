@@ -148,23 +148,24 @@
                 <!-- Content will be dynamically added using JavaScript -->
             </table>
         </div>
-        <div id="users">
-            <h2>Users Section</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th onclick="sortTable(1)">Phone</th>
-                        <th onclick="sortTable(1)">Name</th>
-                        <th onclick="sortTable(3)">Email</th>
-                        <th>Avatar</th>
-                        <th>CreatedAt Time</th>
-                    </tr>
-                </thead>
-                <tbody id="userTableBody"></tbody>
-            </table>
+<div id="users">
+  <h2>Users Section</h2>
+  <table>
+    <thead>
+      <tr>
+        <th onclick="sortTable(1)">Phone</th>
+        <th onclick="sortTable(2)">Name</th>
+        <th onclick="sortTable(3)">Email</th>
+        <th onclick="sortTable(4)">Wallet</th> <!-- Assuming wallet is the 4th property in your data -->
+        <th onclick="sortTable(5)">Referred Wallet</th>
+        <th onclick="sortTable(6)">Withdrawal Amount</th>
+        <th onclick="sortTable(7)">CreatedAt Time</th>
+      </tr>
+    </thead>
+    <tbody id="userTableBody"></tbody>
+  </table>
+</div>
 
-            <!-- Add your settings content here -->
-        </div>
         <div id="approve">
             <h2>Approved Withdrawl</h2>
             <table>
