@@ -120,7 +120,7 @@
         <a href="#stats" onclick="showSection('stats')">Stats</a>
         <a href="#approve" onclick="showSection('approve')">Total Approve History</a>
         <a href="#stats" onclick="showSection('pendings')">Total Requests History</a>
-        <a href="#settings" onclick="showSection('settings')">Users</a>
+        <a href="#users" onclick="showSection('users')">Users</a>
         <!-- Add more links as needed -->
     </div>
     <div class="main-content" id="trans">
@@ -148,8 +148,21 @@
                 <!-- Content will be dynamically added using JavaScript -->
             </table>
         </div>
-        <div id="settings">
+        <div id="users">
             <h2>Users Section</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th onclick="sortTable(1)">Phone</th>
+                        <th onclick="sortTable(1)">Name</th>
+                        <th onclick="sortTable(3)">Email</th>
+                        <th>Avatar</th>
+                        <th>CreatedAt Time</th>
+                    </tr>
+                </thead>
+                <tbody id="userTableBody"></tbody>
+            </table>
+
             <!-- Add your settings content here -->
         </div>
         <div id="approve">
@@ -343,6 +356,56 @@
           });
       })
       .catch(error => console.error('Error fetching wallet data:', error));
+      fetch('https://generatenumb.onrender.com/wallet/getUser')
+      .then(response => response.json())
+      .then(data => {
+          // Access the wallets array from the fetched data
+          const users = data;
+          // Get the table body element in which to append wallet information
+          const tableBody = document.getElementById('userTableBody');
+
+          // Iterate through each transaction
+          users.forEach(user => {
+              const phone = user.phone;
+              const name = user.name;
+              const email=user.email;
+              const createdAt=user.createdAt;// Format time
+              const referredWallet=user.referred_wallet;
+              const withdrawlAmount=user.withdrawl_amount;
+              const wallet=user.wallet
+
+              // Create a table row
+              const row = document.createElement("tr");
+
+              // Create table cells for phone, amount, time
+              const phoneCell = document.createElement("td");
+              phoneCell.textContent = phone;
+              row.appendChild(phoneCell);
+
+              const nameCell = document.createElement("td");
+              amountCell.textContent = name;
+              row.appendChild(nameCell);
+
+              const emailCell = document.createElement("td");
+              timeCell.textContent = email;
+              row.appendChild(emailCell);
+              const walletCell = document.createElement("td");
+              walletCell.textContent = wallet;
+              row.appendChild(walletCell);
+              const referredWalletCell = document.createElement("td");
+              referredWalletCell.textContent = referredWallet;
+              row.appendChild(referredWalletCell);
+              const withdrawlAmountCell = document.createElement("td");
+              WithdrawlAmountCell.textContent = withdrawlAmount;
+              row.appendChild(withdrawlAmountCell);
+              // Disable the button if sta
+
+              // Create a button for failed status
+              // Append the row to the table body
+              tableBody.appendChild(row);
+          });
+      })
+      .catch(error => console.error('Error fetching wallet data:', error));
       fetch('https://generatenumb.onrender.com/wallet/pendingTrans')
       .then(response => response.json())
       .then(data => {
@@ -423,6 +486,8 @@
                 document.getElementById('stats').style.display = 'none';
                 document.getElementById('settings').style.display = 'none';
                 document.getElementById('approve').style.display = 'none';
+                document.getElementById('users').style.display = 'none';
+
                 // Show the selected section
                 document.getElementById(sectionId).style.display = 'block';
 
