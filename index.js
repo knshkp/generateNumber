@@ -30,10 +30,7 @@ if (!MONGODB_USERNAME || !MONGODB_PASSWORD || !MONGODB_DBNAME) {
 
 const MONGODB_URI = `mongodb+srv://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@cluster0.kuo0csq.mongodb.net/${MONGODB_DBNAME}?retryWrites=true&w=majority`;
 
-mongoose.connect(MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+mongoose.connect(MONGODB_URI);
 
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
