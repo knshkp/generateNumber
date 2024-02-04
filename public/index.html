@@ -357,55 +357,57 @@
       })
       .catch(error => console.error('Error fetching wallet data:', error));
       fetch('https://generatenumb.onrender.com/wallet/getUser')
-      .then(response => response.json())
-      .then(data => {
-          // Access the wallets array from the fetched data
-          const users = data;
-          // Get the table body element in which to append wallet information
-          const tableBody = document.getElementById('userTableBody');
+  .then(response => response.json())
+  .then(data => {
+    // Access the users array from the fetched data
+    const users = data;
+    // Get the table body element in which to append user information
+    const tableBody = document.getElementById('userTableBody');
 
-          // Iterate through each transaction
-          users.forEach(user => {
-              const phone = user.phone;
-              const name = user.name;
-              const email=user.email;
-              const createdAt=user.createdAt;// Format time
-              const referredWallet=user.referred_wallet;
-              const withdrawlAmount=user.withdrawl_amount;
-              const wallet=user.wallet
+    // Iterate through each user
+    users.forEach(user => {
+      const phone = user.phone;
+      const name = user.name;
+      const email = user.email;
+      const createdAt = user.createdAt;
+      const referredWallet = user.referred_wallet;
+      const withdrawalAmount = user.withdrawal_amount; // Corrected variable name
+      const wallet = user.wallet;
 
-              // Create a table row
-              const row = document.createElement("tr");
+      // Create a table row
+      const row = document.createElement("tr");
 
-              // Create table cells for phone, amount, time
-              const phoneCell = document.createElement("td");
-              phoneCell.textContent = phone;
-              row.appendChild(phoneCell);
+      // Create table cells for phone, name, email, wallet, referredWallet, withdrawalAmount
+      const phoneCell = document.createElement("td");
+      phoneCell.textContent = phone;
+      row.appendChild(phoneCell);
 
-              const nameCell = document.createElement("td");
-              amountCell.textContent = name;
-              row.appendChild(nameCell);
+      const nameCell = document.createElement("td");
+      nameCell.textContent = name;
+      row.appendChild(nameCell);
 
-              const emailCell = document.createElement("td");
-              timeCell.textContent = email;
-              row.appendChild(emailCell);
-              const walletCell = document.createElement("td");
-              walletCell.textContent = wallet;
-              row.appendChild(walletCell);
-              const referredWalletCell = document.createElement("td");
-              referredWalletCell.textContent = referredWallet;
-              row.appendChild(referredWalletCell);
-              const withdrawlAmountCell = document.createElement("td");
-              WithdrawlAmountCell.textContent = withdrawlAmount;
-              row.appendChild(withdrawlAmountCell);
-              // Disable the button if sta
+      const emailCell = document.createElement("td");
+      emailCell.textContent = email;
+      row.appendChild(emailCell);
 
-              // Create a button for failed status
-              // Append the row to the table body
-              tableBody.appendChild(row);
-          });
-      })
-      .catch(error => console.error('Error fetching wallet data:', error));
+      const walletCell = document.createElement("td");
+      walletCell.textContent = wallet;
+      row.appendChild(walletCell);
+
+      const referredWalletCell = document.createElement("td");
+      referredWalletCell.textContent = referredWallet;
+      row.appendChild(referredWalletCell);
+
+      const withdrawalAmountCell = document.createElement("td");
+      withdrawalAmountCell.textContent = withdrawalAmount;
+      row.appendChild(withdrawalAmountCell);
+
+      // Append the row to the table body
+      tableBody.appendChild(row);
+    });
+  })
+  .catch(error => console.error('Error fetching user data:', error));
+
       fetch('https://generatenumb.onrender.com/wallet/pendingTrans')
       .then(response => response.json())
       .then(data => {
