@@ -28,9 +28,11 @@ if (!MONGODB_USERNAME || !MONGODB_PASSWORD || !MONGODB_DBNAME) {
   process.exit(1); // Exit the application if MongoDB URI is not defined
 }
 
-const MONGODB_URI = `mongodb+srv://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@cluster0.kuo0csq.mongodb.net/${MONGODB_DBNAME}?retryWrites=true&w=majority`;
+const MONGODB_URI = `mongodb+srv://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@cluster0.zwwed4z.mongodb.net/${MONGODB_DBNAME}?retryWrites=true&w=majority`;
 
-mongoose.connect(MONGODB_URI);
+mongoose.connect(MONGODB_URI,{useUnifiedTopology: true, useNewUrlParser: true })
+.then(console.log("mongodb connected successfully...."))
+.catch(err =>console.log(err));
 
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
