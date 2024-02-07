@@ -176,7 +176,7 @@ const receiveMoney = async (io, phone, time, amount) => {
     }
 
     sender.wallet += amount * time;
-    sender.withdrawal_amount += amount * time;
+    sender.withdrwarl_amount += amount * time;
     await sender.save();
     newUserTransaction.transactions.push({ time, amount: amount * time });
 
