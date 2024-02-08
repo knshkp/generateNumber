@@ -104,7 +104,7 @@ const getWalletPendingTrans = async (req, res) => {
 };
 const updateStatus = async (req, res) => {
   try {
-    const { phone, amount, status } = req.body;
+    const { phone, amount, status,id } = req.body;
 
     // Assuming you have a Wallet model
     const wallet = await Wallet.findOne({ phone: phone });
@@ -114,7 +114,7 @@ const updateStatus = async (req, res) => {
     }
 
     // Find the transaction based on the amount
-    const transaction = wallet.walletTrans.find(trans => trans.amount === amount);
+    const transaction = wallet.walletTrans.find(trans => trans._id === id);
 
     if (!transaction) {
       return res.status(404).json({ error: 'Transaction not found' });
