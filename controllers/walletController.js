@@ -114,7 +114,7 @@ const updateStatus = async (req, res) => {
     }
 
     // Find the transaction based on the amount
-    const transaction = wallet.walletTrans.find(trans => trans._id === id);
+    const transaction = wallet.walletTrans.find(trans => trans._id == id);
 
     if (!transaction) {
       return res.status(404).json({ error: 'Transaction not found' });
