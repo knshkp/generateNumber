@@ -4,7 +4,7 @@ const socketIO = require('socket.io');
 const path = require('path');
 const mongoose = require('mongoose');
 require('dotenv').config();
-
+const cors=require('cors');
 const app = express();
 const expressServer = http.createServer(app);
 const io = socketIO(expressServer);
@@ -12,7 +12,7 @@ const walletRoute=require('./routes/walletRoutes')
 
 // Import the generateAndBroadcastNumber and sendMoney functions
 const { generateAndBroadcastNumber, sendMoney } = require('./controllers/generateController');
-
+app.use(cors());
 // Serve HTML file for testing
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public/index.html'));
