@@ -106,9 +106,6 @@ const getWalletPendingTrans = async (req, res) => {
 const updateStatus = async (req, res) => {
   try {
     const { phone, amount, status,id } = req.body;
-    if(status==2){
-      await walletService.addFunds(phone,amount);
-    }
     // Assuming you have a Wallet model
     const wallet = await Wallet.findOne({ phone: phone });
 
