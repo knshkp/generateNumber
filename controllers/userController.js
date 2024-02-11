@@ -38,9 +38,10 @@ const userLogin = async (req, res) => {
 
         let userID=await generateUniqueUserID()
         const referId = req.body.referId || req.body.refer_id
+        let referAmount=0;
         if(referId){
         const referedUser = await User.findOne({ user_id: referId });
-        
+        referAmount+=10;
         if (referedUser) {
           // Check if referId is not already in the array
           if (!referedUser.refer_id.includes(userID)) {
@@ -59,6 +60,7 @@ const userLogin = async (req, res) => {
             avatar:req.body.avatar,
             user_id:userID,
             withdrwarl_amount:0,
+            wallet:referAmount
 
             // Add any other required fields for signup
           });
@@ -72,7 +74,8 @@ const userLogin = async (req, res) => {
             avatar:savedUser.avatar,
             user_id:savedUser.user_id,
             withdrwarl_amount:savedUser.withdrwarl_amount,
-            refer_id:savedUser.refer_id
+            refer_id:savedUser.refer_id,
+            wallet:savedUser.wallet
           };
     
           const response = {
