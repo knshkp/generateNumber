@@ -1,12 +1,12 @@
 const express = require('express');
-const http = require('http');
+const https = require('https');
 const socketIO = require('socket.io');
 const path = require('path');
 const mongoose = require('mongoose');
 require('dotenv').config();
 const cors=require('cors');
 const app = express();
-const expressServer = http.createServer(app);
+const expressServer = https.createServer(app);
 const io = socketIO(expressServer);
 const walletRoute=require('./routes/walletRoutes')
 
