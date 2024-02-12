@@ -6,7 +6,16 @@ const mongoose = require('mongoose');
 require('dotenv').config();
 const cors=require('cors');
 const app = express();
-const expressServer = https.createServer(app);
+const privateKeyPath = '/etc/letsencrypt/live/sattajodileak.com/privkey.pem';
+const certificatePath = '/etc/letsencrypt/live/sattajodileak.com/fullchain.pem';
+const caPath = '/etc/letsencrypt/live/sattajodileak.com/chain.pem';
+
+const privateKey = fs.readFileSync(privateKeyPath, 'utf8');
+const certificate = fs.readFileSync(certificatePath, 'utf8');
+const ca = fs.readFileSync(caPath, 'utf8');
+
+const credentials = { key: privateKey, cert: certificate, ca: ca };
+const expressServer = https.createServer(credentials,app);
 const io = socketIO(expressServer);
 const walletRoute=require('./routes/walletRoutes')
 
