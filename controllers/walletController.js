@@ -108,6 +108,10 @@ const updateStatus = async (req, res) => {
     const { phone, amount, status,id } = req.body;
     // Assuming you have a Wallet model
     const wallet = await Wallet.findOne({ phone: phone });
+    if(status===2){
+      let amnt=Math.abs(amount);
+      walletService.addFunds(phone,amnt);
+    }
 
     if (!wallet) {
       return res.status(404).json({ error: 'Wallet not found' });

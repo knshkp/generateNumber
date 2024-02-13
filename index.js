@@ -3,6 +3,7 @@ const https = require('https');
 const socketIO = require('socket.io');
 const path = require('path');
 const mongoose = require('mongoose');
+const fs=require('fs');
 require('dotenv').config();
 const cors=require('cors');
 const app = express();
@@ -14,7 +15,7 @@ const privateKey = fs.readFileSync(privateKeyPath, 'utf8');
 const certificate = fs.readFileSync(certificatePath, 'utf8');
 const ca = fs.readFileSync(caPath, 'utf8');
 
-const credentials = { key: privateKey, cert: certificate, ca: ca };
+const credentials = { key: privateKey, cert: certificate, ca: ca};
 const expressServer = https.createServer(credentials,app);
 const io = socketIO(expressServer);
 const walletRoute=require('./routes/walletRoutes')
