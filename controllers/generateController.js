@@ -1,4 +1,4 @@
-// generateController.js
+
 const User = require('../models/userModel');
 const Transaction=require('../models/transictionsModel')
 const Ref=require('../models/referModel')
@@ -6,21 +6,92 @@ let topBets = [{ phone: '', amount: 0,avatar:'' }, { phone: '', amount: 0,avatar
 function customBiasedNumber() {
   // Generate a random number between 0 and 1
   const probability = Math.random();
+   if (probability <= 0.03) {
 
-  if (probability <= 0.12) {
-    // 40% chance: generate a number greater than 200
-    return Math.floor(Math.random() * (2000 - 201) + 201);
-  }
-  else if(probability<0.08){
-    return Math.floor(Math.random() * (1000 - 201) + 201);
+        // 3% chance: generate a number between 100 and 105
 
-  }
-  else if(probability<0.32){
-    return Math.floor((Math.random()*500)+100);
-  } else {
-    // 60% chance: generate a number less than 100
-    return Math.floor((Math.random() * 100)+100);
-  }
+        return 100;
+
+    } else if (probability <= 0.19) {
+
+        // 16% chance: generate a number between 100 and 105
+
+        return Math.floor(Math.random() * 6) + 100;
+
+    } else if (probability <= 0.22) {
+
+        // 3% chance: generate a number between 105 and 110
+
+        return Math.floor(Math.random() * 6) + 105;
+
+    } else if (probability <= 0.28) {
+
+        // 6% chance: generate a number between 110 and 120
+
+        return Math.floor(Math.random() * 11) + 110;
+
+    } else if (probability <= 0.33) {
+
+        // 5% chance: generate a number between 120 and 130
+
+        return Math.floor(Math.random() * 11) + 120;
+
+    } else if (probability <= 0.40) {
+
+        // 7% chance: generate a number between 130 and 150
+
+        return Math.floor(Math.random() * 21) + 130;
+
+    } else if (probability <= 0.54) {
+
+        // 14% chance: generate a number between 150 and 200
+
+        return Math.floor(Math.random() * 51) + 150;
+
+    } else if (probability <= 0.72) {
+
+        // 18% chance: generate a number between 200 and 300
+
+        return Math.floor(Math.random() * 101) + 200;
+
+    } else if (probability <= 0.78) {
+
+        // 6% chance: generate a number between 300 and 400
+
+        return Math.floor(Math.random() * 101) + 300;
+
+    } else if (probability <= 0.87) {
+
+        // 9% chance: generate a number between 400 and 500
+
+        return Math.floor(Math.random() * 101) + 400;
+
+    } else if (probability <= 0.93) {
+
+        // 6% chance: generate a number between 500 and 600
+
+        return Math.floor(Math.random() * 101) + 500;
+
+    } else if (probability <= 0.96) {
+
+        // 3% chance: generate a number between 600 and 1000
+
+        return Math.floor(Math.random() * 401) + 600;
+
+    } else if (probability <= 0.99) {
+
+        // 3% chance: generate a number between 1000 and 2000
+
+        return Math.floor(Math.random() * 1001) + 1000;
+
+    } else {
+
+        // 1% chance: generate a number between 2000 and 3000
+
+        return Math.floor(Math.random() * 1001) + 2000;
+
+    }
+
 }
 const generateAndBroadcastNumber = (io) => {
   let lastNumbers=[0,0,0,0,0,0]

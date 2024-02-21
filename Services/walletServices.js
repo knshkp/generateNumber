@@ -36,7 +36,7 @@ const addFunds = async (phone, amount) => {
           phone:referredUsers.phone,
           referred: {
             user_id: user.user_id,
-            avatar: user.avatar,
+            avatar: user.avatar||1,
             amount: referralBonus
           }
         });
