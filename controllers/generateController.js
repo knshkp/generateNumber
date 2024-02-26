@@ -122,18 +122,18 @@ const generateAndBroadcastNumber = (io) => {
         // Increase the number
         currentNumber = Math.round(currentNumber * 1.005)+1;
         io.emit('updateData', { number: currentNumber, time: timeRemaining ,rocket:rocket,a:lastNumbers[0],b:lastNumbers[1],c:lastNumbers[2],d:lastNumbers[3],e:lastNumbers[4],f:lastNumbers[5]});
-        io.emit('bet', { a: topBets[0], b: topBets[1], c: topBets[2], d: topBets[3], e: topBets[4],f:topBets[5],f:topBets[6],g:topBets[7],h:topBets[8],i:topBets[9]});
+        io.emit('bet', { a: topBets[0], b: topBets[1], c: topBets[2], d: topBets[3], e: topBets[4]});
 
       } else if (timeRemaining > 0) {
         rocket=false
         // Decrease the time
         timeRemaining--;
         io.emit('updateData', { number: currentNumber, time: timeRemaining ,rocket:rocket,a:lastNumbers[0],b:lastNumbers[1],c:lastNumbers[2],d:lastNumbers[3],e:lastNumbers[4]});
-        io.emit('bet', { a: topBets[0], b: topBets[1], c: topBets[2], d: topBets[3], e: topBets[4],f:topBets[5],f:topBets[6],g:topBets[7],h:topBets[8],i:topBets[9]});
+        io.emit('bet', {  a:topBets[0], b: topBets[1], c: topBets[2], d: topBets[3], e: topBets[4]});
       }
         // End the interval when both conditions are met
         else{
-          topBets = [{ phone: '', amount: 0 }, { phone: '', amount: 0 }, { phone: '', amount: 0 }, { phone: '', amount: 0 }, { phone: '', amount: 0 }];
+          topBets = [{ phone: '', amount: 0 },{ phone: '', amount: 0 },{ phone: '', amount: 0 },{ phone: '', amount: 0 }, { phone: '', amount: 0 }];
         clearInterval(intervalId);
         generateAndBroadcast();
       }
@@ -149,7 +149,7 @@ const generateAndBroadcastNumber = (io) => {
 
 
 
-const sendMoney = async (io, phone, time, amount,avatar) => {
+const sendMoney = async (io, phone, time, amount, avatar) => {
   try {
     let userTransaction = await Transaction.findOne({ phone });
 
@@ -158,16 +158,28 @@ const sendMoney = async (io, phone, time, amount,avatar) => {
       // Otherwise, use the existing transaction
       userTransaction = new Transaction({
         phone,
-        transactions: []
+        transactions: [],
       });
     }
 
     userTransaction.transactions.push({ time, amount: -amount });
 
-    // Keep only the top 10 bets
-    if (topBets.length > 10) {
-      topBets.pop();
+    // Keep only the top 5 bets
+    if (topBets.length >= 5) {
+      // Check if the new amount is greater than the smallest amount in the topBets
+      const smallestTopBet = Math.min(...topBets.map(bet => bet.amount));
+      if (amount >= smallestTopBet) {
+        // Remove the smallest bet and add the new bet
+        topBets = topBets.filter(bet => bet.amount !== smallestTopBet);
+        topBets.push({ phone, amount });
+        topBets.sort((a, b) => b.amount - a.amount);
+      }
+    } else {
+      // If topBets has less than 5 bets, simply add the new bet
+      topBets.push({ phone, amount });
+      topBets.sort((a, b) => b.amount - a.amount);
     }
+    
 
     // Use a batch save for better performance
     await Promise.all([userTransaction.save()]);
