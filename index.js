@@ -55,9 +55,11 @@ app.use('/api', generateRoutes(io));
 
 const userRoutes = require('./routes/userRoute');
 const minesRoute = require('./routes/minesRoute');
+const luckyRoute = require('./routes/luckyRoutes');
 app.use('/user', userRoutes);
 app.use('/wallet',walletRoute);
 app.use('/mines',minesRoute);
+app.use('/lucky',luckyRoute(io));
 // Start the Express server on port 3000
 const EXPRESS_PORT = 3000;
 expressServer.listen(EXPRESS_PORT, () => {
