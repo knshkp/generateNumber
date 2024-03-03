@@ -5,35 +5,42 @@ const Ref=require('../models/referModel')
 let firstBet = 0;
 let secondBet = 0;
 let thirdBet = 0;
+let winner = null;
 
 const generateAndBroadcastNumber = (io) => {
   let targetNumber = 0;
   let currentNumber = 0;
   let timeRemaining = 10; // Initial countdown time in seconds
   let intervalId = null;
-  let winner = null;
-
   const generateAndBroadcast = () => {
-    targetNumber = 100;
+    targetNumber = 10;
     currentNumber = 0;
-    timeRemaining = 500; // Use the generated number for countdown time
+    timeRemaining = 10; // Use the generated number for countdown time
+    let a=0,b=0,c=0;
     winner = '';
+    let spin=false
+    
     clearInterval(intervalId);
 
     intervalId = setInterval(() => {
 
       if (timeRemaining > 0) {
         timeRemaining--;
-        io.emit('luckyBet', { number: currentNumber, time: timeRemaining, result: winner,firstBet:firstBet,secondBet:secondBet,thirdBet:thirdBet  });
-      }else if (currentNumber < targetNumber) {
+        a+=Math.floor(Math.random() * (191)) + 10;
+        b+=Math.floor(Math.random() * (191)) + 10;
+        c+=Math.floor(Math.random() * (191)) + 10;
+
+        io.emit('luckyBet', { number: currentNumber, time: timeRemaining,spin:spin, result: winner,firstBet:a,secondBet:b,thirdBet:c  });
+      }else if (currentNumber < targetNumber&&currentNumber!==0) {
+        
         currentNumber += 1;
-        io.emit('luckyBet', { number: currentNumber, time: timeRemaining, result: winner,firstBet:firstBet,secondBet:secondBet,thirdBet:thirdBet });
+        io.emit('luckyBet', { number: currentNumber, time: timeRemaining, spin:spin,result: winner,firstBet:a,secondBet:b,thirdBet:c });
       }
-      else if(currentNumber===targetNumber){
-        firstBet = 0;
-        secondBet = 0;
-        thirdBet = 0;
-      }  else {
+      else if(currentNumber===0&&timeRemaining===0){
+        currentNumber++;
+        io.emit('luckyBet', { number: currentNumber, time: timeRemaining,spin:spin, result: winner,firstBet:a,secondBet:b,thirdBet:c  });
+
+        spin=true
         if (firstBet <= secondBet) {
           if (firstBet <= thirdBet) {
             winner = 0;
@@ -47,11 +54,21 @@ const generateAndBroadcastNumber = (io) => {
             winner = 2;
           }
         }
+      }  
+      else {
+        a=Math.floor(Math.random() * (191)) + 10;
+        b=Math.floor(Math.random() * (191)) + 10;
+        c=Math.floor(Math.random() * (191)) + 10;
+        firstBet = 0;
+        secondBet = 0;
+        thirdBet = 0;
 
         clearInterval(intervalId);
         generateAndBroadcast();
+        
+       
       }
-    }, 100); // Reduced the interval to 1000ms (1 second)
+    }, 1000); // Reduced the interval to 1000ms (1 second)
   };
 
   // Call generateAndBroadcast to start the initial round
@@ -60,23 +77,18 @@ const generateAndBroadcastNumber = (io) => {
 
 const sendLuckyMoney = async (io, phone, color, amount) => {
   try {
-    console.log(`>>>>>>>`)
     let userTransaction = await LuckyTransaction.findOne({ phone });
     const sender = await User.findOne({ phone });
-    console.log(`>>>>>>>>><M<<<<`)
-
     if (!sender) {
       throw new Error('Sender not found');
     }
 
     if (!userTransaction) {
-      console.log(`>>>>>>>><<><>`, phone)
       userTransaction = new LuckyTransaction({
         phone,
         transactions: [],
       });
     }
-    console.log(`>>><><><?><>`)
 
     if (color === 0) {
       firstBet += 9.1 * amount; // Adjusted the multiplier
@@ -87,41 +99,36 @@ const sendLuckyMoney = async (io, phone, color, amount) => {
     }
 
     userTransaction.transactions.push({ color, amount: -amount });
-    console.log(`>>>>>>>>>>`)
     await userTransaction.save(); // Removed unnecessary array wrapping
-    console.log('<<<<<end1')
-
+    
     if (sender.wallet < amount) {
-      console.log('<<<<<end2')
       io.emit('walletLuckyUpdated', { error: 'Insufficient Funds' });
     } else {
-      console.log('<<<<<end3')
       sender.wallet -= amount;
       await sender.save();
 
       io.emit('walletLuckyUpdated', { phone, newBalance: sender.wallet, color });
-      console.log('<<<<<end4')
-
+    
       return { success: true, message: 'Money sent successfully' };
     }
   } catch (error) {
-    console.error('Error sending money:', error.message || error);
     io.emit('walletLuckyUpdated', { error: 'Failed to send money. Please try again.' });
     throw new Error('Failed to send money. Please try again.');
   }
 };
   
   const receiveMoney = async (io, phone, color, amount) => {
+    let winning=0;
     try {
       const [sender, userTransaction] = await Promise.all([
         User.findOne({ phone }),
         LuckyTransaction.findOne({ phone })
       ]);
-  
+      console.log(`>>>>>>>>>..`)
       if (!sender) {
         throw new Error('Sender not found');
       }
-  
+      console.log(`>>>>@>>>>>>`)
       // Initialize userTransaction if not found
       let newUserTransaction = userTransaction;
       if (!newUserTransaction) {
@@ -130,16 +137,26 @@ const sendLuckyMoney = async (io, phone, color, amount) => {
           transactions: []
         });
       }
+      console.log(`>>>>>>>>>>>>3>>>>>>>`)
+      if(color===winner){
+        if(color===0){
+          winning=amount*9.1;
+        }
+        else{
+          winning=amount*2.1;
+        }
+
+      }
+      console.log(`>>>>>>>>>>>>>4>>>>>`,winning)
   
       const referredUsers = await User.findOne({ refer_id: { $in: sender.user_id } });
       if (referredUsers) {
-        const referralBonus = 0.05 * amount * (time - 1.00);
+        const referralBonus = 0.05 * winning;
   
         // Add the referral bonus to the referring user's account
         referredUsers.referred_wallet += referralBonus;
-  
+        console.log(`>>>>>>>>>>>5`)
         let ref = await Ref.findOne({ phone: referredUsers.phone });
-        console.log(`>>>>>>>>>>>>>`, ref);
         if (ref) {
           ref.referred.push({
             user_id: sender.user_id,
@@ -147,6 +164,7 @@ const sendLuckyMoney = async (io, phone, color, amount) => {
             amount: referralBonus
           });
         } else {
+          console.log(`>>>>>>>>>>>>>>6`)
           ref = new Ref({
             phone: referredUsers.phone,
             referred: [{
@@ -160,20 +178,22 @@ const sendLuckyMoney = async (io, phone, color, amount) => {
         // Save the updated referring user and the Ref model
         await Promise.all([referredUsers.save(), ref.save()]);
       }
+      console.log(`>>>>>>>>>7>>>>>`)
   
-      sender.wallet += amount * time;
-      sender.withdrwarl_amount += amount * time;
+      sender.wallet +=winning;
+      sender.withdrwarl_amount += winning;
+      console.log(`>>>>>>>>>>>7.5>>`,sender.wallet)
       await sender.save();
-      newUserTransaction.transactions.push({ time, amount: amount * time });
+      newUserTransaction.transactions.push({color: color, amount:winning});
+      console.log(`>>>>>>>>>>>8>>>>`)
   
       // Use a batch save for better performance
       await Promise.all([newUserTransaction.save(), sender.save()]);
   
-      io.emit('walletLuckyUpdated', { phone, newBalance: sender.wallet, time });
+      io.emit('walletLuckyUpdated', { phone, newBalance: sender.wallet });
   
       return { success: true, message: 'Money received successfully' };
     } catch (error) {
-      console.error('Error receiving money:', error.message || error);
       throw new Error('Server responded falsely');
     }
   };
@@ -191,7 +211,6 @@ const sendLuckyMoney = async (io, phone, color, amount) => {
   
       res.status(200).json({ transactions: userTransactions.transactions });
     } catch (error) {
-      console.error('Error getting transactions:', error);
       res.status(500).json({ error: 'Internal Server Error' });
     }
   };
