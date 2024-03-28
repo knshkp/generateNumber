@@ -29,7 +29,7 @@ const generateAndBroadcastNumber = (io) => {
         a+=Math.floor(Math.random() * (191)) + 10;
         b+=Math.floor(Math.random() * (191)) + 10;
         c+=Math.floor(Math.random() * (191)) + 10;
-
+        
         io.emit('luckyBet', { number: currentNumber, time: timeRemaining,spin:spin, result: winner,firstBet:a,secondBet:b,thirdBet:c  });
       }else if (currentNumber < targetNumber&&currentNumber!==0) {
         
@@ -102,7 +102,7 @@ const sendLuckyMoney = async (io, phone, color, amount) => {
     await userTransaction.save(); // Removed unnecessary array wrapping
     
     if (sender.wallet < amount) {
-      io.emit('walletLuckyUpdated', { error: 'Insufficient Funds' });
+      io.emit('walletLuckyUpdated', {phone:phone, error: 'Insufficient Funds' });
     } else {
       sender.wallet -= amount;
       await sender.save();
