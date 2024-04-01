@@ -8,6 +8,7 @@ let thirdBet = 0;
 let winner = null;
 
 const generateAndBroadcastNumber = (io) => {
+  let lastNumbers=[0,0,0,0,0,0]
   let targetNumber = 0;
   let currentNumber = 0;
   let timeRemaining = 10; // Initial countdown time in seconds
@@ -23,22 +24,21 @@ const generateAndBroadcastNumber = (io) => {
     clearInterval(intervalId);
 
     intervalId = setInterval(() => {
+      
 
       if (timeRemaining > 0) {
         timeRemaining--;
         a+=Math.floor(Math.random() * (191)) + 10;
         b+=Math.floor(Math.random() * (191)) + 10;
         c+=Math.floor(Math.random() * (191)) + 10;
-        
-        io.emit('luckyBet', { number: currentNumber, time: timeRemaining,spin:spin, result: winner,firstBet:a,secondBet:b,thirdBet:c  });
+        io.emit('luckyBet', { number: currentNumber, time: timeRemaining,spin:spin, result: winner,firstBet:a,secondBet:b,thirdBet:c,a:lastNumbers[0],b:lastNumbers[1],c:lastNumbers[2],d:lastNumbers[3],e:lastNumbers[4],f:lastNumbers[5]});
       }else if (currentNumber < targetNumber&&currentNumber!==0) {
-        
         currentNumber += 1;
-        io.emit('luckyBet', { number: currentNumber, time: timeRemaining, spin:spin,result: winner,firstBet:a,secondBet:b,thirdBet:c });
+        io.emit('luckyBet', { number: currentNumber, time: timeRemaining, spin:spin,result: winner,firstBet:a,secondBet:b,thirdBet:c,a:lastNumbers[0],b:lastNumbers[1],c:lastNumbers[2],d:lastNumbers[3],e:lastNumbers[4],f:lastNumbers[5] });
       }
       else if(currentNumber===0&&timeRemaining===0){
         currentNumber++;
-        io.emit('luckyBet', { number: currentNumber, time: timeRemaining,spin:spin, result: winner,firstBet:a,secondBet:b,thirdBet:c  });
+        io.emit('luckyBet', { number: currentNumber, time: timeRemaining,spin:spin, result: winner,firstBet:a,secondBet:b,thirdBet:c,a:lastNumbers[0],b:lastNumbers[1],c:lastNumbers[2],d:lastNumbers[3],e:lastNumbers[4],f:lastNumbers[5]  });
 
         spin=true
         if (firstBet <= secondBet) {
@@ -53,6 +53,10 @@ const generateAndBroadcastNumber = (io) => {
           } else {
             winner = 2;
           }
+        }
+        lastNumbers.push(winner+1)
+        if(lastNumbers.length>6){
+          lastNumbers.shift();
         }
       }  
       else {
@@ -103,13 +107,14 @@ const sendLuckyMoney = async (io, phone, color, amount) => {
     
     if (sender.wallet < amount) {
       io.emit('walletLuckyUpdated', {phone:phone, error: 'Insufficient Funds' });
+      return { success: false, message: 'InSufficient FUnds' };
     } else {
       sender.wallet -= amount;
       await sender.save();
 
       io.emit('walletLuckyUpdated', { phone, newBalance: sender.wallet, color });
     
-      return { success: true, message: 'Money sent successfully' };
+      return { success: true, message: 'Money sent successfully',newBalance:sender.wallet,color };
     }
   } catch (error) {
     io.emit('walletLuckyUpdated', { error: 'Failed to send money. Please try again.' });
@@ -124,11 +129,9 @@ const sendLuckyMoney = async (io, phone, color, amount) => {
         User.findOne({ phone }),
         LuckyTransaction.findOne({ phone })
       ]);
-      console.log(`>>>>>>>>>..`)
       if (!sender) {
         throw new Error('Sender not found');
       }
-      console.log(`>>>>@>>>>>>`)
       // Initialize userTransaction if not found
       let newUserTransaction = userTransaction;
       if (!newUserTransaction) {
@@ -137,7 +140,6 @@ const sendLuckyMoney = async (io, phone, color, amount) => {
           transactions: []
         });
       }
-      console.log(`>>>>>>>>>>>>3>>>>>>>`)
       if(color===winner){
         if(color===0){
           winning=amount*9.1;
@@ -147,7 +149,6 @@ const sendLuckyMoney = async (io, phone, color, amount) => {
         }
 
       }
-      console.log(`>>>>>>>>>>>>>4>>>>>`,winning)
   
       const referredUsers = await User.findOne({ refer_id: { $in: sender.user_id } });
       if (referredUsers) {
@@ -182,17 +183,15 @@ const sendLuckyMoney = async (io, phone, color, amount) => {
   
       sender.wallet +=winning;
       sender.withdrwarl_amount += winning;
-      console.log(`>>>>>>>>>>>7.5>>`,sender.wallet)
       await sender.save();
       newUserTransaction.transactions.push({color: color, amount:winning});
-      console.log(`>>>>>>>>>>>8>>>>`)
   
       // Use a batch save for better performance
       await Promise.all([newUserTransaction.save(), sender.save()]);
   
       io.emit('walletLuckyUpdated', { phone, newBalance: sender.wallet });
   
-      return { success: true, message: 'Money received successfully' };
+      return { success: true, message: 'Money received successfully',newBalance:sender.wallet };
     } catch (error) {
       throw new Error('Server responded falsely');
     }

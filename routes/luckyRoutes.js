@@ -20,8 +20,9 @@ module.exports = (io) => {
     const { phone, color, amount,avatar } = req.body;
 
     try {
-      await sendLuckyMoney(io, phone,color, amount);
-      res.status(200).json({ message: 'Money sent successfully' });
+      const response=await sendLuckyMoney(io, phone,color, amount);
+      console.log(response)
+      res.status(200).json({ response:response });
     } catch (error) {
       console.error('Error sending money:', error);
       res.status(500).json({ error: 'Internal Server Error' });
@@ -31,8 +32,8 @@ module.exports = (io) => {
     const { phone, color, amount } = req.body;
 
     try {
-      await receiveMoney(io, phone,color, amount);
-      res.status(200).json({ message: 'Money sent successfully' });
+      const response=await receiveMoney(io, phone,color, amount);
+      res.status(200).json({ response:response });
     } catch (error) {
       console.error('Error sending money:', error);
       res.status(500).json({ error: 'Internal Server Error' });
