@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-
+const jwt = require("jsonwebtoken");
 const userSchema = new mongoose.Schema({
   user_id:{
     type:String,
@@ -44,5 +44,9 @@ const userSchema = new mongoose.Schema({
     default: Date.now
   }
 });
+
+userSchema.methods.generateToken=async function(){
+  
+};
 
 module.exports = mongoose.model("User", userSchema);
