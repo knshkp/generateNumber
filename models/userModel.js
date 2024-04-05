@@ -46,7 +46,17 @@ const userSchema = new mongoose.Schema({
 });
 
 userSchema.methods.generateToken=async function(){
-  
+  try {
+    return jwt.sign(
+      {
+         user_id:this._id.toString(),
+         email:this.email,
+         phone:this.phone
+      }
+  );
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 module.exports = mongoose.model("User", userSchema);
