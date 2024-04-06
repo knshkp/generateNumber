@@ -31,17 +31,23 @@ const generateAndBroadcastNumber = (io) => {
         a+=Math.floor(Math.random() * (191)) + 10;
         b+=Math.floor(Math.random() * (191)) + 10;
         c+=Math.floor(Math.random() * (191)) + 10;
+        io.emit('spinPlaced',{red:firstBet,yellow:secondBet,blue:thirdBet})
         io.emit('luckyBet', { number: currentNumber, time: timeRemaining,spin:spin, result: winner,firstBet:a,secondBet:b,thirdBet:c,a:lastNumbers[0],b:lastNumbers[1],c:lastNumbers[2],d:lastNumbers[3],e:lastNumbers[4],f:lastNumbers[5],g:lastNumbers[6],h:lastNumbers[7],i:lastNumbers[8],j:lastNumbers[9],k:lastNumbers[10],l:lastNumbers[11]});
       }else if (currentNumber < targetNumber&&currentNumber!==0) {
         currentNumber += 1;
+        io.emit('spinPlaced',{red:firstBet,yellow:secondBet,blue:thirdBet})
         io.emit('luckyBet', { number: currentNumber, time: timeRemaining, spin:spin,result: winner,firstBet:a,secondBet:b,thirdBet:c,a:lastNumbers[0],b:lastNumbers[1],c:lastNumbers[2],d:lastNumbers[3],e:lastNumbers[4],f:lastNumbers[5],f:lastNumbers[5],g:lastNumbers[6],h:lastNumbers[7],i:lastNumbers[8],j:lastNumbers[9],k:lastNumbers[10],l:lastNumbers[11] });
       }
       else if(currentNumber===0&&timeRemaining===0){
         currentNumber++;
+        io.emit('spinPlaced',{red:firstBet,yellow:secondBet,blue:thirdBet})
         io.emit('luckyBet', { number: currentNumber, time: timeRemaining,spin:spin, result: winner,firstBet:a,secondBet:b,thirdBet:c,a:lastNumbers[0],b:lastNumbers[1],c:lastNumbers[2],d:lastNumbers[3],e:lastNumbers[4],f:lastNumbers[5],f:lastNumbers[5],g:lastNumbers[6],h:lastNumbers[7],i:lastNumbers[8],j:lastNumbers[9],k:lastNumbers[10],l:lastNumbers[11]  });
 
         spin=true
-        if (firstBet <= secondBet) {
+        if(firstBet===0&&secondBet===0&&thirdBet===0){
+          winner=Math.floor(Math.random() * 3);
+        }
+        else if (firstBet <= secondBet) {
           if (firstBet <= thirdBet) {
             winner = 0;
           } else {
@@ -95,11 +101,11 @@ const sendLuckyMoney = async (io, phone, color, amount) => {
     }
 
     if (color === 0) {
-      firstBet += 9.1 * amount; // Adjusted the multiplier
+      firstBet += 9 * amount; // Adjusted the multiplier
     } else if (color === 1) {
-      secondBet += 2.1 * amount; // Adjusted the multiplier
+      secondBet += 2 * amount; // Adjusted the multiplier
     } else {
-      thirdBet += 2.1 * amount; // Adjusted the multiplier
+      thirdBet += 2 * amount; // Adjusted the multiplier
     }
 
     userTransaction.transactions.push({ color, amount: -amount });
@@ -142,10 +148,10 @@ const sendLuckyMoney = async (io, phone, color, amount) => {
       }
       if(color===winner){
         if(color===0){
-          winning=amount*9.1;
+          winning=amount*9;
         }
         else{
-          winning=amount*2.1;
+          winning=amount*2;
         }
 
       }

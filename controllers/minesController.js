@@ -181,12 +181,8 @@ const sendMinesMoney = async (req, res) => {
   
       if (referredUsers.length > 0) {
         const referralBonus = 0.05 * amount * (time - 1.00);
-  
-        // Add the referral bonus to the referring user's account
         sender.wallet += referralBonus;
-        sender.referral_wallet += referralBonus;
-  
-        // Save the updated referring user
+        sender.referred_wallet += referralBonus;
         await sender.save();
   
         for (const referredUser of referredUsers) {
@@ -200,7 +196,8 @@ const sendMinesMoney = async (req, res) => {
               avatar: sender.avatar,
               amount: referralBonus
             });
-          } else {
+          } 
+          else {
             ref = new Ref({
               phone: referredUser.phone,
               referred: [{
@@ -210,14 +207,12 @@ const sendMinesMoney = async (req, res) => {
               }]
             });
           }
-  
-          // Save the updated referred user and the Ref model
           await Promise.all([referredUser.save(), ref.save()]);
         }
       }
   
       sender.wallet += amount * time;
-      sender.withdrawal_amount += amount * time;
+      sender.withdrwarl_amount += amount * time;
       await Promise.all([newUserTransaction.save(), sender.save()]);
   
       // Send the response to the client
